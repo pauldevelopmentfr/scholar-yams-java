@@ -2,6 +2,7 @@ package fr.pauldevelopment.yams.app;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -14,6 +15,7 @@ public class Engine {
 
     private static Engine instance;
     private static final int NUMBER_OF_DICE = 5;
+    private static final int ROLL_LIMIT = 3;
     private UserInterface userInterface;
     private Map<Dice, JLabel> diceList = new HashMap<>();
 
@@ -45,15 +47,20 @@ public class Engine {
     }
 
     /**
-     * Roll a dice
+     * Roll the dice list
      */
     public void rollDice() {
         JButton rollButton = this.userInterface.getRollButton();
+        AtomicInteger rollCount = new AtomicInteger(0);
 
         rollButton.addActionListener(e -> {
             for (Dice dice : this.game.getDiceList()) {
                 dice.roll();
                 this.userInterface.updateDice(this.diceList.get(dice), dice.getValue());
+            }
+
+            if (rollCount.incrementAndGet() == ROLL_LIMIT) {
+                rollButton.setEnabled(false);
             }
         });
     }
