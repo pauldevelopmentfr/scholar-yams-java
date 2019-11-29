@@ -28,6 +28,7 @@ public class Dice {
 
         Random number = new Random();
         this.value = number.nextInt(6) + 1;
+        this.keepDice = true;
     }
 
     /**
@@ -37,5 +38,12 @@ public class Dice {
      */
     public void setKeepDice(boolean keepDice) {
         this.keepDice = keepDice;
+    }
+
+    /**
+     * Update keep status
+     */
+    public void updateKeepStatus() {
+        this.keepDice = !this.keepDice;
     }
 }

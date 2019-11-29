@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 
 import fr.pauldevelopment.yams.app.gui.UserInterface;
 import fr.pauldevelopment.yams.game.Dice;
@@ -17,7 +16,7 @@ public class Engine {
     private static final int NUMBER_OF_DICE = 5;
     private static final int ROLL_LIMIT = 3;
     private UserInterface userInterface;
-    private Map<Dice, JLabel> diceList = new HashMap<>();
+    private Map<Dice, JButton> diceList = new HashMap<>();
 
     private Game game;
 
@@ -53,10 +52,22 @@ public class Engine {
         JButton rollButton = this.userInterface.getRollButton();
         AtomicInteger rollCount = new AtomicInteger(0);
 
+        for (Dice dice : this.game.getDiceList()) {
+            JButton graphicalDiceRelated = this.diceList.get(dice);
+
+            graphicalDiceRelated.addActionListener(e -> {
+                dice.updateKeepStatus();
+                this.userInterface.updateDiceSelection(graphicalDiceRelated);
+            });
+        }
+
         rollButton.addActionListener(e -> {
             for (Dice dice : this.game.getDiceList()) {
                 dice.roll();
-                this.userInterface.updateDice(this.diceList.get(dice), dice.getValue());
+
+                JButton graphicalDiceRelated = this.diceList.get(dice);
+                this.userInterface.updateDice(graphicalDiceRelated, dice.getValue());
+                this.userInterface.resetDiceSelection(graphicalDiceRelated);
             }
 
             if (rollCount.incrementAndGet() == ROLL_LIMIT) {

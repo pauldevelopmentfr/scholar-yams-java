@@ -1,5 +1,6 @@
 package fr.pauldevelopment.yams.app.gui;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
@@ -14,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
 
 public class UserInterface {
 
@@ -22,7 +24,7 @@ public class UserInterface {
     private static final int SPACE_BETWEEN_DICE = 75;
     private JFrame window = new JFrame();
     private JPanel panel = new CustomPanel();
-    private List<JLabel> diceList = new ArrayList<>();
+    private List<JButton> diceList = new ArrayList<>();
     private JButton rollButton;
 
     /**
@@ -52,7 +54,7 @@ public class UserInterface {
      *
      * @return the dice list
      */
-    public List<JLabel> getDiceList() {
+    public List<JButton> getDiceList() {
         return this.diceList;
     }
 
@@ -66,16 +68,40 @@ public class UserInterface {
     }
 
     /**
+     * Reset dice selection
+     *
+     * @param dice
+     */
+    public void resetDiceSelection(JButton dice) {
+        dice.setBorderPainted(false);
+    }
+
+    /**
      * Update a dice
      *
      * @param dice to update
      */
-    public void updateDice(JLabel dice, int diceValue) {
+    public void updateDice(JButton dice, int diceValue) {
         try {
             dice.setIcon(new ImageIcon(ImageIO.read(new File("src/main/resources/dice/" + diceValue + ".png"))));
+
+            Cursor handCursor = new Cursor(Cursor.HAND_CURSOR);
+
+            if (!dice.getCursor().getName().equals(handCursor.getName())) {
+                dice.setCursor(handCursor);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * Add/remove a border when a dice is selected/unselected
+     *
+     * @param dice
+     */
+    public void updateDiceSelection(JButton dice) {
+        dice.setBorderPainted(!dice.isBorderPainted());
     }
 
     /**
@@ -102,9 +128,14 @@ public class UserInterface {
             int variableMargin = 35;
 
             for (int i = 0; i < numberOfDice; i++) {
-                JLabel dice = new JLabel(new ImageIcon(diceImage));
+                JButton dice = new JButton(new ImageIcon(diceImage));
+
+                dice.setBorder(new LineBorder(Color.RED, 3));
+                dice.setBorderPainted(false);
+                dice.setContentAreaFilled(false);
                 dice.setSize(diceImage.getWidth(), diceImage.getHeight());
-                dice.setLocation(MARGIN_LEFT + variableMargin, MARGIN_TOP);
+                dice.setLocation(MARGIN_LEFT + variableMargin, MARGIN_TOP + 10);
+
                 this.diceList.add(dice);
                 this.panel.add(dice);
                 variableMargin += UserInterface.SPACE_BETWEEN_DICE;
