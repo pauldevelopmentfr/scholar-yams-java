@@ -23,15 +23,27 @@ public class ComboTest {
     }
 
     @Test
-    public void testChanceWithRandomValues() {
-        this.game.getDiceList().add(new Dice(6));
+    public void testChanceWithAcceptanceValue11336() {
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(1));
         this.game.getDiceList().add(new Dice(3));
-        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(3));
         this.game.getDiceList().add(new Dice(6));
-        this.game.getDiceList().add(new Dice(5));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(22, combinationList.get(14));
+        assertEquals(14, combinationList.get(14));
+    }
+
+    @Test
+    public void testChanceWithAcceptanceValue45561() {
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(6));
+        this.game.getDiceList().add(new Dice(1));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(21, combinationList.get(14));
     }
 
     @Test
@@ -42,72 +54,132 @@ public class ComboTest {
     }
 
     @Test
-    public void testTotalOfFive() {
-        this.game.getDiceList().add(new Dice(3));
+    public void testHighestPairWithAcceptanceValues11626() {
         this.game.getDiceList().add(new Dice(1));
-        this.game.getDiceList().add(new Dice(3));
-        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(6));
         this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(6));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(4));
+        assertEquals(12, combinationList.get(6));
     }
 
     @Test
-    public void testTotalOfFour() {
+    public void testHighestPairWithAcceptanceValues33341() {
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(3));
         this.game.getDiceList().add(new Dice(4));
         this.game.getDiceList().add(new Dice(1));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(6, combinationList.get(6));
+    }
+
+    @Test
+    public void testHighestPairWithAcceptanceValues33344() {
         this.game.getDiceList().add(new Dice(3));
         this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(4));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(8, combinationList.get(6));
+    }
+
+    @Test
+    public void testHighestPairWithoutPair() {
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(6));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(0, combinationList.get(6));
+    }
+
+    @Test
+    public void testPairWithFourOfAKind() {
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(6));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(8, combinationList.get(6));
+    }
+
+    @Test
+    public void testPairWithFull() {
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(4));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(10, combinationList.get(6));
+    }
+
+    @Test
+    public void testPairWithThreeOfAKind() {
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(6));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(6, combinationList.get(6));
+    }
+
+    @Test
+    public void testPairWithYams() {
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(1));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(2, combinationList.get(6));
+    }
+
+    @Test
+    public void testTotalOfFourWithAcceptanceValues11244() {
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(4));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(8, combinationList.get(3));
+    }
+
+    @Test
+    public void testTotalOfOneWithAcceptanceValues33345() {
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(4));
         this.game.getDiceList().add(new Dice(5));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(4, combinationList.get(3));
+        assertEquals(0, combinationList.get(0));
     }
 
     @Test
-    public void testTotalOfOne() {
-        this.game.getDiceList().add(new Dice(1));
-        this.game.getDiceList().add(new Dice(1));
-        this.game.getDiceList().add(new Dice(1));
-        this.game.getDiceList().add(new Dice(4));
+    public void testTotalOfTwoWithAcceptanceValues23251() {
         this.game.getDiceList().add(new Dice(2));
-
-        List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(3, combinationList.get(0));
-    }
-
-    @Test
-    public void testTotalOfSix() {
-        this.game.getDiceList().add(new Dice(6));
-        this.game.getDiceList().add(new Dice(6));
-        this.game.getDiceList().add(new Dice(6));
-        this.game.getDiceList().add(new Dice(6));
-        this.game.getDiceList().add(new Dice(6));
-
-        List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(30, combinationList.get(5));
-    }
-
-    @Test
-    public void testTotalOfThree() {
-        this.game.getDiceList().add(new Dice(3));
-        this.game.getDiceList().add(new Dice(1));
-        this.game.getDiceList().add(new Dice(3));
         this.game.getDiceList().add(new Dice(3));
         this.game.getDiceList().add(new Dice(2));
-
-        List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(9, combinationList.get(2));
-    }
-
-    @Test
-    public void testTotalOfTwo() {
-        this.game.getDiceList().add(new Dice(2));
-        this.game.getDiceList().add(new Dice(1));
         this.game.getDiceList().add(new Dice(5));
-        this.game.getDiceList().add(new Dice(4));
-        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(1));
 
         List<Integer> combinationList = this.game.getCombinationList();
         assertEquals(4, combinationList.get(1));

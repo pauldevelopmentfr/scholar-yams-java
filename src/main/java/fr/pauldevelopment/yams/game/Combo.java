@@ -1,7 +1,9 @@
 package fr.pauldevelopment.yams.game;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import fr.pauldevelopment.yams.app.Engine;
 
@@ -49,7 +51,7 @@ public class Combo {
         combinationList.add(countOccurrences(diceList, 4) * 4);
         combinationList.add(countOccurrences(diceList, 5) * 5);
         combinationList.add(countOccurrences(diceList, 6) * 6);
-        combinationList.add(0);
+        combinationList.add(highestPair(diceList));
         combinationList.add(0);
         combinationList.add(0);
         combinationList.add(0);
@@ -71,5 +73,24 @@ public class Combo {
      */
     private static int countDiceValues(List<Dice> diceList) {
         return diceList.stream().mapToInt(Dice::getValue).sum();
+    }
+
+    /**
+     * Get the highest pair score
+     *
+     * @param diceList
+     *
+     * @return the highest pair score
+     */
+    private static int highestPair(List<Dice> diceList) {
+        List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
+
+        for (Dice dice : sortedDiceList) {
+            if (countOccurrences(sortedDiceList, dice.getValue()) >= 2) {
+                return dice.getValue() * 2;
+            }
+        }
+
+        return 0;
     }
 }
