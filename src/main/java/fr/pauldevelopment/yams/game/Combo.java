@@ -58,7 +58,7 @@ public class Combo {
         combinationList.add(0);
         combinationList.add(0);
         combinationList.add(0);
-        combinationList.add(0);
+        combinationList.add(findYams(diceList));
         combinationList.add(countDiceValues(diceList));
 
         return combinationList;
@@ -127,5 +127,10 @@ public class Combo {
     private static int findThreeOfAKind(List<Dice> diceList) {
         List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
         return findDuplicateDice(sortedDiceList, 3);
+    }
+
+    private static int findYams(List<Dice> diceList) {
+        List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
+        return findDuplicateDice(sortedDiceList, 5) > 0 ? 50 : 0;
     }
 }

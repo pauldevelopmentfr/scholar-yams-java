@@ -256,4 +256,28 @@ public class ComboTest {
         List<Integer> combinationList = this.game.getCombinationList();
         assertEquals(4, combinationList.get(1));
     }
+
+    @Test
+    public void testYamsOf5() {
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(5));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(50, combinationList.get(13));
+    }
+
+    @Test
+    public void testYamsWithoutYams() {
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(5));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(0, combinationList.get(13));
+    }
 }
