@@ -238,6 +238,13 @@ public class UserInterface {
 
         if (comboSquare < 6) {
             int score = Integer.parseInt(this.topScore.getText()) + value;
+
+            if (score >= Engine.BONUS_ELIGIBILITY && this.bonusScore.getText().equals("0")) {
+                this.bonusScore.setText(Integer.toString(Engine.BONUS_VALUE));
+                this.bonusScore.setForeground(Color.RED);
+                score += Engine.BONUS_VALUE;
+            }
+
             this.topScore.setText(Integer.toString(score));
         } else {
             int score = Integer.parseInt(this.bottomScore.getText()) + value;

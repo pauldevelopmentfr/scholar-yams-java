@@ -12,6 +12,7 @@ public class Game {
 
     private List<Dice> diceList = new ArrayList<>();
     private Map<Player, List<Integer>> gridList = new HashMap<>();
+    private Map<Player, Integer> bonusScore = new HashMap<>();
     private Map<Player, Integer> topScore = new HashMap<>();
     private Map<Player, Integer> totalScore = new HashMap<>();
 
@@ -22,6 +23,17 @@ public class Game {
         for (int i = 0; i < Engine.NUMBER_OF_DICE; i++) {
             this.diceList.add(new Dice());
         }
+    }
+
+    /**
+     * Get the bonus score of a player
+     *
+     * @param player
+     *
+     * @return the bonus score
+     */
+    public Integer getBonusScore(Player player) {
+        return this.bonusScore.get(player);
     }
 
     /**
@@ -77,6 +89,7 @@ public class Game {
 
             this.gridList.put(player, new ArrayList<>(Collections.nCopies(15, -1)));
             this.topScore.put(player, 0);
+            this.bonusScore.put(player, 0);
             this.totalScore.put(player, 0);
             player.setId(i + 1);
         }
@@ -112,6 +125,11 @@ public class Game {
      */
     public void updateScores(Player player, int comboSquare, int value) {
         if (comboSquare < 6) {
+            if (this.getTopScore(player) + value >= Engine.BONUS_ELIGIBILITY && this.getBonusScore(player) == 0) {
+                this.bonusScore.put(player, Engine.BONUS_VALUE);
+                value += Engine.BONUS_VALUE;
+            }
+
             this.topScore.put(player, this.topScore.get(player) + value);
         }
 

@@ -19,6 +19,8 @@ import fr.pauldevelopment.yams.game.Player;
 
 public class Engine {
 
+    public static final int BONUS_ELIGIBILITY = 63;
+    public static final int BONUS_VALUE = 35;
     public static final int NUMBER_OF_DICE = 5;
     private static Engine instance;
     private static final int ROLL_LIMIT = 3;
