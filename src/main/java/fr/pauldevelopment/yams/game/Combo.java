@@ -52,7 +52,7 @@ public class Combo {
         combinationList.add(countOccurrences(diceList, 5) * 5);
         combinationList.add(countOccurrences(diceList, 6) * 6);
         combinationList.add(findHighestPair(diceList));
-        combinationList.add(0);
+        combinationList.add(findDoublePair(diceList));
         combinationList.add(findThreeOfAKind(diceList));
         combinationList.add(findFourOfAKind(diceList));
         combinationList.add(0);
@@ -73,6 +73,23 @@ public class Combo {
      */
     private static int countDiceValues(List<Dice> diceList) {
         return diceList.stream().mapToInt(Dice::getValue).sum();
+    }
+
+    /**
+     * Find the double pair
+     *
+     * @param diceList
+     *
+     * @return the double pair score
+     */
+    private static int findDoublePair(List<Dice> diceList) {
+        List<Dice> sortedDiceListAsc = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue)).collect(Collectors.toList());
+        List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
+
+        int bottomPair = findDuplicateDice(sortedDiceListAsc, 2);
+        int topPair = findDuplicateDice(sortedDiceList, 2);
+
+        return bottomPair == topPair ? findDuplicateDice(sortedDiceList, 4) : bottomPair + topPair;
     }
 
     /**
@@ -129,6 +146,13 @@ public class Combo {
         return findDuplicateDice(sortedDiceList, 3);
     }
 
+    /**
+     * Find the yams score
+     *
+     * @param diceList
+     *
+     * @return the yams score
+     */
     private static int findYams(List<Dice> diceList) {
         List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
         return findDuplicateDice(sortedDiceList, 5) > 0 ? 50 : 0;
