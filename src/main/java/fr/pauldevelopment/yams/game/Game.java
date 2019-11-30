@@ -10,9 +10,9 @@ import fr.pauldevelopment.yams.app.Engine;
 
 public class Game {
 
+    private Map<Player, Integer> bonusScore = new HashMap<>();
     private List<Dice> diceList = new ArrayList<>();
     private Map<Player, List<Integer>> gridList = new HashMap<>();
-    private Map<Player, Integer> bonusScore = new HashMap<>();
     private Map<Player, Integer> topScore = new HashMap<>();
     private Map<Player, Integer> totalScore = new HashMap<>();
 
@@ -97,8 +97,8 @@ public class Game {
             Player player = players.get(i);
 
             this.gridList.put(player, new ArrayList<>(Collections.nCopies(15, -1)));
-            this.topScore.put(player, 0);
             this.bonusScore.put(player, 0);
+            this.topScore.put(player, 0);
             this.totalScore.put(player, 0);
             player.setId(i + 1);
         }
