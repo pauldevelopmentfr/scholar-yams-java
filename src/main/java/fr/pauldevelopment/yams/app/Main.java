@@ -15,15 +15,11 @@ public class Main {
         List<Player> players = new ArrayList<>();
         Human player1 = new Human("Player 1");
         Human player2 = new Human("Player 2");
-        Human player3 = new Human("Player 3");
-        Human player4 = new Human("Player 4");
         players.add(player1);
         players.add(player2);
-        players.add(player3);
-        players.add(player4);
 
         try {
-            engine.initGame(players);
+            engine.initGame(players, 2);
         } catch (TooMuchPlayersException e) {
             e.printStackTrace();
             System.exit(1);

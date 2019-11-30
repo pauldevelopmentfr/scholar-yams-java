@@ -30,7 +30,6 @@ public class UserInterface {
     private static final int TOP_SIZE = 6;
     private static final int UNDER_GRID_Y = 486;
 
-    private HashMap<Player, JLabel> playerName = new HashMap<>();
     private HashMap<Player, JLabel> bonusScore = new HashMap<>();
     private HashMap<Player, JLabel> bottomScore = new HashMap<>();
     private JLabel diceContainer;
@@ -38,6 +37,7 @@ public class UserInterface {
     private JLabel grid;
     private Map<Player, List<JLabel>> gridList = new HashMap<>();
     private JPanel panel = new CustomPanel();
+    private HashMap<Player, JLabel> playerName = new HashMap<>();
     private JButton rollButton;
     private HashMap<Player, JLabel> topScore = new HashMap<>();
     private HashMap<Player, JLabel> totalScore = new HashMap<>();
@@ -199,6 +199,20 @@ public class UserInterface {
         }
 
         this.rollButton.setEnabled(true);
+        this.updatePanel();
+    }
+
+    /**
+     * Reset interface
+     */
+    public void resetInterface() {
+        this.topScore.clear();
+        this.bonusScore.clear();
+        this.bottomScore.clear();
+        this.totalScore.clear();
+        this.panel.remove(this.grid);
+        this.grid = this.createGrid();
+        this.panel.add(this.grid);
         this.updatePanel();
     }
 

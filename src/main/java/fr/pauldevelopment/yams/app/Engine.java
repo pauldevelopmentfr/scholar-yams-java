@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +26,14 @@ public class Engine {
     public static final int NUMBER_OF_DICE = 5;
     private static Engine instance;
     private static final int ROLL_LIMIT = 3;
+    private Player currentPlayer;
     private Map<Dice, JButton> diceList = new HashMap<>();
     private Game game;
+    private Map<Player, Boolean> playerHasFinished = new HashMap<>();
+    private Map<Integer, Player> players = new HashMap<>();
+    private int remainingHalves = 0;
     private AtomicInteger rollCount = new AtomicInteger(0);
     private UserInterface userInterface;
-    private Player currentPlayer;
-    private Map<Integer, Player> players = new HashMap<>();
 
     /**
      * Private constructor to hide the implicit public one
@@ -51,7 +54,7 @@ public class Engine {
      */
     public static Engine getInstance() {
         if (instance == null) {
-            return new Engine();
+            instance = new Engine();
         }
 
         return instance;
@@ -80,6 +83,8 @@ public class Engine {
                     Engine.this.resetGameStatus(player);
                     Engine.this.rollCount.set(0);
                     Engine.this.changePlayer();
+                    Engine.this.checkIfPlayerHasFinished(player);
+                    Engine.this.checkIfGameIsOver();
                 }
 
                 @Override
@@ -109,14 +114,16 @@ public class Engine {
      * Initialize game
      *
      * @param players
+     * @param halves
      *
      * @throws TooMuchPlayersException
      */
-    public void initGame(List<Player> players) throws TooMuchPlayersException {
+    public void initGame(List<Player> players, int halves) throws TooMuchPlayersException {
         if (players.size() > 4) {
             throw new TooMuchPlayersException("You can't run a game with more than 4 players");
         }
 
+        this.remainingHalves = halves - 1;
         this.game.init(players);
         this.userInterface.init(players);
 
@@ -128,6 +135,7 @@ public class Engine {
             this.userInterface.createGridValues(player);
             this.addGridListener(player);
             this.userInterface.hideGridSuggestions(player);
+            this.playerHasFinished.put(player, false);
         }
 
         this.userInterface.changeCurrentPlayer(this.currentPlayer);
@@ -185,11 +193,59 @@ public class Engine {
     }
 
     /**
+     * Check if game is over
+     */
+    private void checkIfGameIsOver() {
+        AtomicInteger isOver = new AtomicInteger(0);
+
+        this.playerHasFinished.forEach((k, v) -> {
+            if (v.booleanValue()) {
+                isOver.incrementAndGet();
+            }
+        });
+
+        if (isOver.get() == this.playerHasFinished.size()) {
+            if (this.remainingHalves > 0) {
+                this.resetEngine();
+            } else {
+                this.userInterface.getRollButton().setEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * Check if player has finished his grid
+     *
+     * @param player
+     */
+    private void checkIfPlayerHasFinished(Player player) {
+        if (!Engine.this.game.getGridList(player).contains(-1)) {
+            Engine.this.playerHasFinished.put(player, true);
+        }
+    }
+
+    /**
      * Get the grid of the current player
      */
     private void getCurrentPlayerGrid() {
         this.userInterface.updateGridSuggestions(this.currentPlayer, this.game.getCombinationList());
         this.userInterface.showGridSuggestions(this.currentPlayer);
+    }
+
+    /**
+     * Reset engine
+     *
+     * @throws TooMuchPlayersException
+     */
+    private void resetEngine() {
+        this.userInterface.resetInterface();
+
+        try {
+            this.initGame(new ArrayList<>(this.players.values()), this.remainingHalves);
+        } catch (TooMuchPlayersException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
     /**
