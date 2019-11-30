@@ -125,6 +125,7 @@ public class Engine {
 
         this.remainingHalves = halves - 1;
         this.game.init(players);
+
         this.userInterface.init(players);
 
         for (Player player : players) {
@@ -205,6 +206,8 @@ public class Engine {
         });
 
         if (isOver.get() == this.playerHasFinished.size()) {
+            this.userInterface.createPodiumWindow(this.game.getPodium());
+
             if (this.remainingHalves > 0) {
                 this.resetEngine();
             } else {

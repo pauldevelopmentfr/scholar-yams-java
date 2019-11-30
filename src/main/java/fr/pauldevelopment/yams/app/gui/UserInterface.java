@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -17,6 +18,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 
 import fr.pauldevelopment.yams.app.Engine;
@@ -26,6 +29,14 @@ public class UserInterface {
 
     private static final int BOTTOM_SIZE = 9;
     private static final int MARGIN_LEFT = 48;
+    private static final int PODIUM_FIRST_X = 315;
+    private static final int PODIUM_FIRST_Y = 172;
+    private static final int PODIUM_HEIGHT = 78;
+    private static final int PODIUM_SECOND_X = 149;
+    private static final int PODIUM_SECOND_Y = 250;
+    private static final int PODIUM_THIRD_X = 480;
+    private static final int PODIUM_THIRD_Y = 280;
+    private static final int PODIUM_WIDTH = 163;
     private static final int SPACE_BETWEEN_DICE = 75;
     private static final int TOP_SIZE = 6;
     private static final int UNDER_GRID_Y = 486;
@@ -48,15 +59,10 @@ public class UserInterface {
      */
     public UserInterface() {
         this.window.setTitle("Yams!");
-        this.window.setSize(810, 610);
         this.window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.window.setLocationRelativeTo(null);
-        this.window.setResizable(false);
-        this.window.setIconImage(this.getIconImage());
-        this.window.setVisible(true);
+        this.createWindow(this.window);
         this.window.add(this.panel);
         this.panel.setLayout(null);
-
         this.diceContainer = this.createDiceContainer();
         this.diceList = this.createDiceList();
         this.addDiceListToContainer();
@@ -102,6 +108,64 @@ public class UserInterface {
 
         this.gridList.put(player, labelList);
         this.updatePanel();
+    }
+
+    /**
+     * Create a podium element
+     *
+     * @param text
+     * @param width
+     * @param height
+     * @param x
+     * @param y
+     *
+     * @return a podium element
+     */
+    public JLabel createPodiumElement(String text, int width, int height, int x, int y) {
+        JLabel winner = new JLabel(text);
+        winner.setBounds(x, y, width, height);
+        winner.setHorizontalAlignment(SwingConstants.CENTER);
+        return winner;
+    }
+
+    /**
+     * Create the podium window
+     *
+     * @param players
+     */
+    public void createPodiumWindow(Map<Player, Integer> players) {
+        JFrame podium = new JFrame();
+        podium.setTitle("Podium");
+        podium.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        this.createWindow(podium);
+        JPanel customPanel = new CustomPanel();
+        podium.add(customPanel);
+        customPanel.setLayout(null);
+
+        customPanel.add(this.createElement("logo.png", 260, 50));
+        customPanel.add(this.createElement("podium.png", 148, 250));
+
+        AtomicInteger rank = new AtomicInteger(0);
+
+        players.forEach((player, score) -> {
+            int i = rank.get();
+
+            if (i == 0) {
+                customPanel.add(this.createPodiumElement(player.getName(), PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_FIRST_X, PODIUM_FIRST_Y));
+                customPanel.add(this.createPodiumElement(score + " points", PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_FIRST_X, PODIUM_FIRST_Y + 15));
+            } else if (i == 1) {
+                customPanel.add(this.createPodiumElement(player.getName(), PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_SECOND_X, PODIUM_SECOND_Y));
+                customPanel.add(this.createPodiumElement(score + " points", PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_SECOND_X, PODIUM_SECOND_Y + 15));
+            } else if (i == 2) {
+                customPanel.add(this.createPodiumElement(player.getName(), PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_THIRD_X, PODIUM_THIRD_Y));
+                customPanel.add(this.createPodiumElement(score + " points", PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_THIRD_X, PODIUM_THIRD_Y + 15));
+            }
+
+            rank.set(i + 1);
+        });
+
+        customPanel.revalidate();
+        customPanel.repaint();
     }
 
     /**
@@ -495,6 +559,19 @@ public class UserInterface {
         this.grid.add(this.getBonusScore(player));
         this.grid.add(this.getBottomScore(player));
         this.grid.add(this.getTotalScore(player));
+    }
+
+    /**
+     * Create window with default parameters
+     *
+     * @param window
+     */
+    private void createWindow(JFrame window) {
+        window.setSize(810, 610);
+        window.setLocationRelativeTo(null);
+        window.setResizable(false);
+        window.setIconImage(this.getIconImage());
+        window.setVisible(true);
     }
 
     /**

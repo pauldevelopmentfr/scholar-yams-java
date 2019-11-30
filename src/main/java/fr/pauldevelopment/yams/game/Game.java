@@ -2,7 +2,9 @@ package fr.pauldevelopment.yams.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +65,17 @@ public class Game {
      */
     public List<Integer> getGridList(Player player) {
         return this.gridList.get(player);
+    }
+
+    /**
+     * Get the game podium
+     *
+     * @return the player list ordered by winner
+     */
+    public Map<Player, Integer> getPodium() {
+        LinkedHashMap<Player, Integer> reverseSortedMap = new LinkedHashMap<>();
+        this.totalScore.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
+        return reverseSortedMap;
     }
 
     /**
