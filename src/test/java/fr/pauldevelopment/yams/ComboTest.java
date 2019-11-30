@@ -54,6 +54,42 @@ public class ComboTest {
     }
 
     @Test
+    public void testFourOfAKindWithAcceptanceValues22222() {
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(8, combinationList.get(9));
+    }
+
+    @Test
+    public void testFourOfAKindWithAcceptanceValues22225() {
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(5));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(8, combinationList.get(9));
+    }
+
+    @Test
+    public void testFourOfAKindWithAcceptanceValues22255() {
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(5));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(0, combinationList.get(9));
+    }
+
+    @Test
     public void testHighestPairWithAcceptanceValues11626() {
         this.game.getDiceList().add(new Dice(1));
         this.game.getDiceList().add(new Dice(1));

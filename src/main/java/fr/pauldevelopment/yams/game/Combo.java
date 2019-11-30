@@ -54,7 +54,7 @@ public class Combo {
         combinationList.add(findHighestPair(diceList));
         combinationList.add(0);
         combinationList.add(findThreeOfAKind(diceList));
-        combinationList.add(0);
+        combinationList.add(findFourOfAKind(diceList));
         combinationList.add(0);
         combinationList.add(0);
         combinationList.add(0);
@@ -91,6 +91,18 @@ public class Combo {
         }
 
         return 0;
+    }
+
+    /**
+     * Find the four of a kind score
+     *
+     * @param diceList
+     *
+     * @return the four of a kind score
+     */
+    private static int findFourOfAKind(List<Dice> diceList) {
+        List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
+        return findDuplicateDice(sortedDiceList, 4);
     }
 
     /**
