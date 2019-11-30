@@ -200,6 +200,26 @@ public class UserInterface {
     }
 
     /**
+     * Update the player grid suggestion given a combination list
+     *
+     * @param player
+     * @param combinationList
+     */
+    public void updateGridSuggestions(Player player, List<Integer> combinationList) {
+        for (int i = 0; i < this.gridList.get(player).size(); i++) {
+            JLabel label = this.gridList.get(player).get(i);
+
+            if (label.getForeground().equals(Color.BLACK)) {
+                continue;
+            }
+
+            label.setText(combinationList.get(i) + " ?");
+        }
+
+        this.updatePanel();
+    }
+
+    /**
      * Update grid value
      *
      * @param label
@@ -251,7 +271,7 @@ public class UserInterface {
             this.bottomScore.setText(Integer.toString(score));
         }
 
-        int score = Integer.parseInt(this.totalScore.getText()) + value;
+        int score = Integer.parseInt(this.topScore.getText()) + Integer.parseInt(this.bottomScore.getText());
         this.totalScore.setText(Integer.toString(score));
 
         this.updatePanel();

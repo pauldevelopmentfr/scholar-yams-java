@@ -8,6 +8,22 @@ public class Dice {
     private int value;
 
     /**
+     * Dice constructor
+     */
+    public Dice() {
+
+    }
+
+    /**
+     * Dice constructor
+     *
+     * @param value
+     */
+    public Dice(int value) {
+        this.value = value;
+    }
+
+    /**
      * Get the dice value
      *
      * @return dice value

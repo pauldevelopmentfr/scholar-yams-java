@@ -146,6 +146,7 @@ public class Engine {
                 this.userInterface.removeDiceBorder(graphicalDiceRelated);
             }
 
+            this.userInterface.updateGridSuggestions(player, this.game.getCombinationList());
             this.userInterface.showGridSuggestions(player);
 
             if (this.rollCount.incrementAndGet() == ROLL_LIMIT) {

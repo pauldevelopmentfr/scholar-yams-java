@@ -37,6 +37,15 @@ public class Game {
     }
 
     /**
+     * Get the combination list given a dice list
+     *
+     * @return the combination list
+     */
+    public List<Integer> getCombinationList() {
+        return Combo.getCombinationList(this.diceList);
+    }
+
+    /**
      * Get the dice list
      *
      * @return the dice list
