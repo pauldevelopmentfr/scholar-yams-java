@@ -2,7 +2,9 @@ package fr.pauldevelopment.yams.game;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import fr.pauldevelopment.yams.app.Engine;
@@ -55,7 +57,7 @@ public class Combo {
         combinationList.add(findDoublePair(diceList));
         combinationList.add(findThreeOfAKind(diceList));
         combinationList.add(findFourOfAKind(diceList));
-        combinationList.add(0);
+        combinationList.add(findFullHouse(diceList));
         combinationList.add(0);
         combinationList.add(0);
         combinationList.add(findYams(diceList));
@@ -120,6 +122,28 @@ public class Combo {
     private static int findFourOfAKind(List<Dice> diceList) {
         List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
         return findDuplicateDice(sortedDiceList, 4);
+    }
+
+    /**
+     * Find the full house score
+     *
+     * @param diceList
+     *
+     * @return the full house score
+     */
+    private static int findFullHouse(List<Dice> diceList) {
+        List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
+        Map<Integer, Integer> diceOccurrences = new HashMap<>();
+
+        for (Dice dice : sortedDiceList) {
+            if (diceOccurrences.get(dice.getValue()) == null) {
+                diceOccurrences.put(dice.getValue(), 0);
+            }
+
+            diceOccurrences.put(dice.getValue(), diceOccurrences.get(dice.getValue()) + 1);
+        }
+
+        return diceOccurrences.size() <= 2 ? 25 : 0;
     }
 
     /**
