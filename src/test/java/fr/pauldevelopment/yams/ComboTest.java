@@ -270,6 +270,18 @@ public class ComboTest {
     }
 
     @Test
+    public void testLargeStraight() {
+        this.game.getDiceList().add(new Dice(6));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(2));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(40, combinationList.get(12));
+    }
+
+    @Test
     public void testPairWithFourOfAKind() {
         this.game.getDiceList().add(new Dice(4));
         this.game.getDiceList().add(new Dice(4));
@@ -291,6 +303,18 @@ public class ComboTest {
 
         List<Integer> combinationList = this.game.getCombinationList();
         assertEquals(2, combinationList.get(6));
+    }
+
+    @Test
+    public void testSmallStraight() {
+        this.game.getDiceList().add(new Dice(1));
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(5));
+        this.game.getDiceList().add(new Dice(3));
+        this.game.getDiceList().add(new Dice(2));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(30, combinationList.get(11));
     }
 
     @Test

@@ -58,8 +58,8 @@ public class Combo {
         combinationList.add(findThreeOfAKind(diceList));
         combinationList.add(findFourOfAKind(diceList));
         combinationList.add(findFullHouse(diceList));
-        combinationList.add(0);
-        combinationList.add(0);
+        combinationList.add(findSmallStraight(diceList));
+        combinationList.add(findLargeStraight(diceList));
         combinationList.add(findYams(diceList));
         combinationList.add(countDiceValues(diceList));
 
@@ -156,6 +156,52 @@ public class Combo {
     private static int findHighestPair(List<Dice> diceList) {
         List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
         return findDuplicateDice(sortedDiceList, 2);
+    }
+
+    /**
+     * Find the large straight score
+     *
+     * @param diceList
+     *
+     * @return the large straight score
+     */
+    private static int findLargeStraight(List<Dice> diceList) {
+        List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue)).collect(Collectors.toList());
+        return findStraight(sortedDiceList, sortedDiceList.remove(0).getValue()) == 6 ? 40 : 0;
+    }
+
+    /**
+     * Find the small straight score
+     *
+     * @param diceList
+     *
+     * @return the small straight score
+     */
+    private static int findSmallStraight(List<Dice> diceList) {
+        List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue)).collect(Collectors.toList());
+        return findStraight(sortedDiceList, sortedDiceList.remove(0).getValue()) == 5 ? 30 : 0;
+    }
+
+    /**
+     * Find straight recursively
+     *
+     * @param diceList
+     * @param currentDiceValue
+     *
+     * @return highest dice value of the straight if dice list is a straight, 0 if not
+     */
+    private static int findStraight(List<Dice> diceList, int currentDiceValue) {
+        if (diceList.isEmpty()) {
+            return currentDiceValue;
+        }
+
+        int nextDiceValue = diceList.remove(0).getValue();
+
+        if (currentDiceValue != nextDiceValue - 1) {
+            return 0;
+        }
+
+        return findStraight(diceList, nextDiceValue);
     }
 
     /**
