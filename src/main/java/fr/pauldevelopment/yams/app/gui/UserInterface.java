@@ -30,6 +30,7 @@ public class UserInterface {
     private static final int TOP_SIZE = 6;
     private static final int UNDER_GRID_Y = 486;
 
+    private HashMap<Player, JLabel> playerName = new HashMap<>();
     private HashMap<Player, JLabel> bonusScore = new HashMap<>();
     private HashMap<Player, JLabel> bottomScore = new HashMap<>();
     private JLabel diceContainer;
@@ -64,6 +65,17 @@ public class UserInterface {
         this.grid = this.createGrid();
 
         this.addElementsToPanel();
+    }
+
+    /**
+     * Change current player
+     *
+     * @param currentPlayer
+     */
+    public void changeCurrentPlayer(Player currentPlayer) {
+        this.playerName.forEach((player, label) -> label.setForeground(Color.BLACK));
+        this.playerName.get(currentPlayer).setForeground(Color.BLUE);
+        this.updatePanel();
     }
 
     /**
@@ -160,9 +172,10 @@ public class UserInterface {
      */
     public void init(List<Player> players) {
         for (Player player : players) {
-            JLabel playerName = this.createLabelOnGrid(player.getName(), player.getId(), 0);
-            playerName.setForeground(Color.BLUE);
-            this.grid.add(playerName);
+            JLabel name = this.createLabelOnGrid(player.getName(), player.getId(), 0);
+            name.setForeground(Color.BLUE);
+            this.grid.add(name);
+            this.playerName.put(player, name);
             this.gridList.put(player, new ArrayList<>());
         }
     }

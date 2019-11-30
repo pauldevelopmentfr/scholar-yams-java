@@ -149,7 +149,7 @@ public class Combo {
             }
         }
 
-        return diceOccurrences.size() <= 2 ? 25 : 0;
+        return 25;
     }
 
     /**

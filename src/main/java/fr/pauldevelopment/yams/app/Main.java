@@ -3,6 +3,7 @@ package fr.pauldevelopment.yams.app;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.pauldevelopment.yams.exceptions.TooMuchPlayersException;
 import fr.pauldevelopment.yams.game.Human;
 import fr.pauldevelopment.yams.game.Player;
 
@@ -14,10 +15,20 @@ public class Main {
         List<Player> players = new ArrayList<>();
         Human player1 = new Human("Player 1");
         Human player2 = new Human("Player 2");
+        Human player3 = new Human("Player 3");
+        Human player4 = new Human("Player 4");
         players.add(player1);
         players.add(player2);
+        players.add(player3);
+        players.add(player4);
 
-        engine.initGame(players);
-        engine.start(player1);
+        try {
+            engine.initGame(players);
+        } catch (TooMuchPlayersException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+        engine.start();
     }
 }
