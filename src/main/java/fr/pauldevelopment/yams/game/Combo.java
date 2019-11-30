@@ -51,9 +51,9 @@ public class Combo {
         combinationList.add(countOccurrences(diceList, 4) * 4);
         combinationList.add(countOccurrences(diceList, 5) * 5);
         combinationList.add(countOccurrences(diceList, 6) * 6);
-        combinationList.add(highestPair(diceList));
+        combinationList.add(findHighestPair(diceList));
         combinationList.add(0);
-        combinationList.add(0);
+        combinationList.add(findThreeOfAKind(diceList));
         combinationList.add(0);
         combinationList.add(0);
         combinationList.add(0);
@@ -76,21 +76,44 @@ public class Combo {
     }
 
     /**
-     * Get the highest pair score
+     * Find duplicate dice by a minimum number of occurrences
+     *
+     * @param diceList
+     * @param occurrences
+     *
+     * @return the score of these dice
+     */
+    private static int findDuplicateDice(List<Dice> diceList, int occurrences) {
+        for (Dice dice : diceList) {
+            if (countOccurrences(diceList, dice.getValue()) >= occurrences) {
+                return dice.getValue() * occurrences;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * Find the highest pair score
      *
      * @param diceList
      *
      * @return the highest pair score
      */
-    private static int highestPair(List<Dice> diceList) {
+    private static int findHighestPair(List<Dice> diceList) {
         List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
+        return findDuplicateDice(sortedDiceList, 2);
+    }
 
-        for (Dice dice : sortedDiceList) {
-            if (countOccurrences(sortedDiceList, dice.getValue()) >= 2) {
-                return dice.getValue() * 2;
-            }
-        }
-
-        return 0;
+    /**
+     * Find the three of a kind score
+     *
+     * @param diceList
+     *
+     * @return the three of a kind score
+     */
+    private static int findThreeOfAKind(List<Dice> diceList) {
+        List<Dice> sortedDiceList = diceList.stream().sorted(Comparator.comparingInt(Dice::getValue).reversed()).collect(Collectors.toList());
+        return findDuplicateDice(sortedDiceList, 3);
     }
 }
