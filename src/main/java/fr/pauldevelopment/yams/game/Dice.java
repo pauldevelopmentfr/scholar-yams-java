@@ -4,8 +4,8 @@ import java.util.Random;
 
 public class Dice {
 
-    private int value;
     private boolean keepDice = false;
+    private int value;
 
     /**
      * Get the dice value
@@ -17,9 +17,16 @@ public class Dice {
     }
 
     /**
-     * Roll a dice
+     * Is keep dice
      *
-     * @return a random number between 1 and 6
+     * @return true if we keep dice, false if not
+     */
+    public boolean isKeepDice() {
+        return this.keepDice;
+    }
+
+    /**
+     * Roll a dice
      */
     public void roll() {
         if (this.keepDice) {
