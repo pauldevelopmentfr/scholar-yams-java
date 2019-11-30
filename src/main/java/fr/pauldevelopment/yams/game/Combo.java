@@ -143,7 +143,13 @@ public class Combo {
             diceOccurrences.put(dice.getValue(), diceOccurrences.get(dice.getValue()) + 1);
         }
 
-        return diceOccurrences.size() <= 2 ? 25 : 0;
+        for (Integer values : diceOccurrences.values()) {
+            if (values < 2) {
+                return 0;
+            }
+        }
+
+        return 25;
     }
 
     /**

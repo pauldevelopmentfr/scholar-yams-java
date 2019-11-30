@@ -2,7 +2,9 @@ package fr.pauldevelopment.yams.game;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,9 +12,9 @@ import fr.pauldevelopment.yams.app.Engine;
 
 public class Game {
 
+    private Map<Player, Integer> bonusScore = new HashMap<>();
     private List<Dice> diceList = new ArrayList<>();
     private Map<Player, List<Integer>> gridList = new HashMap<>();
-    private Map<Player, Integer> bonusScore = new HashMap<>();
     private Map<Player, Integer> topScore = new HashMap<>();
     private Map<Player, Integer> totalScore = new HashMap<>();
 
@@ -66,6 +68,17 @@ public class Game {
     }
 
     /**
+     * Get the game podium
+     *
+     * @return the player list ordered by winner
+     */
+    public Map<Player, Integer> getPodium() {
+        LinkedHashMap<Player, Integer> reverseSortedMap = new LinkedHashMap<>();
+        this.totalScore.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).forEachOrdered(x -> reverseSortedMap.put(x.getKey(), x.getValue()));
+        return reverseSortedMap;
+    }
+
+    /**
      * Get the top score of a player
      *
      * @param player
@@ -97,8 +110,8 @@ public class Game {
             Player player = players.get(i);
 
             this.gridList.put(player, new ArrayList<>(Collections.nCopies(15, -1)));
-            this.topScore.put(player, 0);
             this.bonusScore.put(player, 0);
+            this.topScore.put(player, 0);
             this.totalScore.put(player, 0);
             player.setId(i + 1);
         }

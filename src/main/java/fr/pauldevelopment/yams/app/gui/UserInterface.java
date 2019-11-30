@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -17,6 +18,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 
 import fr.pauldevelopment.yams.app.Engine;
@@ -26,20 +29,29 @@ public class UserInterface {
 
     private static final int BOTTOM_SIZE = 9;
     private static final int MARGIN_LEFT = 48;
+    private static final int PODIUM_FIRST_X = 315;
+    private static final int PODIUM_FIRST_Y = 172;
+    private static final int PODIUM_HEIGHT = 78;
+    private static final int PODIUM_SECOND_X = 149;
+    private static final int PODIUM_SECOND_Y = 250;
+    private static final int PODIUM_THIRD_X = 480;
+    private static final int PODIUM_THIRD_Y = 280;
+    private static final int PODIUM_WIDTH = 163;
     private static final int SPACE_BETWEEN_DICE = 75;
     private static final int TOP_SIZE = 6;
     private static final int UNDER_GRID_Y = 486;
 
-    private JLabel bonusScore;
-    private JLabel bottomScore;
+    private HashMap<Player, JLabel> bonusScore = new HashMap<>();
+    private HashMap<Player, JLabel> bottomScore = new HashMap<>();
     private JLabel diceContainer;
     private List<JButton> diceList;
     private JLabel grid;
     private Map<Player, List<JLabel>> gridList = new HashMap<>();
     private JPanel panel = new CustomPanel();
+    private HashMap<Player, JLabel> playerName = new HashMap<>();
     private JButton rollButton;
-    private JLabel topScore;
-    private JLabel totalScore;
+    private HashMap<Player, JLabel> topScore = new HashMap<>();
+    private HashMap<Player, JLabel> totalScore = new HashMap<>();
     private JFrame window = new JFrame();
 
     /**
@@ -47,15 +59,10 @@ public class UserInterface {
      */
     public UserInterface() {
         this.window.setTitle("Yams!");
-        this.window.setSize(810, 610);
         this.window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.window.setLocationRelativeTo(null);
-        this.window.setResizable(false);
-        this.window.setIconImage(this.getIconImage());
-        this.window.setVisible(true);
+        this.createWindow(this.window);
         this.window.add(this.panel);
         this.panel.setLayout(null);
-
         this.diceContainer = this.createDiceContainer();
         this.diceList = this.createDiceList();
         this.addDiceListToContainer();
@@ -64,6 +71,101 @@ public class UserInterface {
         this.grid = this.createGrid();
 
         this.addElementsToPanel();
+    }
+
+    /**
+     * Change current player
+     *
+     * @param currentPlayer
+     */
+    public void changeCurrentPlayer(Player currentPlayer) {
+        this.playerName.forEach((player, label) -> label.setForeground(Color.BLACK));
+        this.playerName.get(currentPlayer).setForeground(Color.BLUE);
+        this.updatePanel();
+    }
+
+    /**
+     * Create grid values
+     *
+     * @param player
+     */
+    public void createGridValues(Player player) {
+        List<JLabel> labelList = new ArrayList<>();
+
+        for (int i = 0; i < TOP_SIZE; i++) {
+            JLabel label = this.createLabelOnGrid("0 ?", player.getId(), i + 1);
+            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            labelList.add(label);
+            this.grid.add(label);
+        }
+
+        for (int i = 0; i < BOTTOM_SIZE; i++) {
+            JLabel label = this.createLabelOnGrid("0 ?", player.getId(), TOP_SIZE + 3 + i);
+            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            labelList.add(label);
+            this.grid.add(label);
+        }
+
+        this.gridList.put(player, labelList);
+        this.updatePanel();
+    }
+
+    /**
+     * Create a podium element
+     *
+     * @param text
+     * @param width
+     * @param height
+     * @param x
+     * @param y
+     *
+     * @return a podium element
+     */
+    public JLabel createPodiumElement(String text, int width, int height, int x, int y) {
+        JLabel winner = new JLabel(text);
+        winner.setBounds(x, y, width, height);
+        winner.setHorizontalAlignment(SwingConstants.CENTER);
+        return winner;
+    }
+
+    /**
+     * Create the podium window
+     *
+     * @param players
+     */
+    public void createPodiumWindow(Map<Player, Integer> players) {
+        JFrame podium = new JFrame();
+        podium.setTitle("Podium");
+        podium.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        this.createWindow(podium);
+        JPanel customPanel = new CustomPanel();
+        podium.add(customPanel);
+        customPanel.setLayout(null);
+
+        customPanel.add(this.createElement("logo.png", 260, 50));
+        customPanel.add(this.createElement("podium.png", 148, 250));
+
+        AtomicInteger rank = new AtomicInteger(0);
+
+        players.forEach((player, score) -> {
+            int i = rank.get();
+
+            if (i == 0) {
+                customPanel.add(this.createPodiumElement(player.getName(), PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_FIRST_X, PODIUM_FIRST_Y));
+                customPanel.add(this.createPodiumElement(score + " points", PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_FIRST_X, PODIUM_FIRST_Y + 15));
+            } else if (i == 1) {
+                customPanel.add(this.createPodiumElement(player.getName(), PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_SECOND_X, PODIUM_SECOND_Y));
+                customPanel.add(this.createPodiumElement(score + " points", PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_SECOND_X, PODIUM_SECOND_Y + 15));
+            } else if (i == 2) {
+                customPanel.add(this.createPodiumElement(player.getName(), PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_THIRD_X, PODIUM_THIRD_Y));
+                customPanel.add(this.createPodiumElement(score + " points", PODIUM_WIDTH, PODIUM_HEIGHT, PODIUM_THIRD_X, PODIUM_THIRD_Y + 15));
+            }
+
+            rank.set(i + 1);
+        });
+
+        customPanel.revalidate();
+        customPanel.repaint();
     }
 
     /**
@@ -123,6 +225,8 @@ public class UserInterface {
 
             label.setVisible(false);
         }
+
+        this.updatePanel();
     }
 
     /**
@@ -132,9 +236,10 @@ public class UserInterface {
      */
     public void init(List<Player> players) {
         for (Player player : players) {
-            JLabel playerName = this.createLabelOnGrid(player.getName(), player.getId(), 0);
-            playerName.setForeground(Color.BLUE);
-            this.grid.add(playerName);
+            JLabel name = this.createLabelOnGrid(player.getName(), player.getId(), 0);
+            name.setForeground(Color.BLUE);
+            this.grid.add(name);
+            this.playerName.put(player, name);
             this.gridList.put(player, new ArrayList<>());
         }
     }
@@ -162,6 +267,20 @@ public class UserInterface {
     }
 
     /**
+     * Reset interface
+     */
+    public void resetInterface() {
+        this.topScore.clear();
+        this.bonusScore.clear();
+        this.bottomScore.clear();
+        this.totalScore.clear();
+        this.panel.remove(this.grid);
+        this.grid = this.createGrid();
+        this.panel.add(this.grid);
+        this.updatePanel();
+    }
+
+    /**
      * Show grid suggestions
      *
      * @param player
@@ -174,6 +293,8 @@ public class UserInterface {
 
             label.setVisible(true);
         }
+
+        this.updatePanel();
     }
 
     /**
@@ -197,6 +318,7 @@ public class UserInterface {
      */
     public void updateDiceSelection(JButton dice) {
         dice.setBorderPainted(!dice.isBorderPainted());
+        this.updatePanel();
     }
 
     /**
@@ -232,19 +354,6 @@ public class UserInterface {
     }
 
     /**
-     * Update grid with scores depending on dice list
-     *
-     * @param player
-     */
-    public void updateGridValues(Player player) {
-        if (this.gridList.get(player).isEmpty()) {
-            this.createGridValues(player);
-        }
-
-        this.updatePanel();
-    }
-
-    /**
      * Update scores
      *
      * @param player
@@ -252,27 +361,27 @@ public class UserInterface {
      * @param value
      */
     public void updateScores(Player player, int comboSquare, int value) {
-        if (this.topScore == null && this.bottomScore == null) {
+        if (this.getTopScore(player) == null && this.getBottomScore(player) == null) {
             this.createScores(player);
         }
 
         if (comboSquare < 6) {
-            int score = Integer.parseInt(this.topScore.getText()) + value;
+            int score = Integer.parseInt(this.getTopScore(player).getText()) + value;
 
-            if (score >= Engine.BONUS_ELIGIBILITY && this.bonusScore.getText().equals("0")) {
-                this.bonusScore.setText(Integer.toString(Engine.BONUS_VALUE));
-                this.bonusScore.setForeground(Color.RED);
+            if (score >= Engine.BONUS_ELIGIBILITY && this.getBonusScore(player).getText().equals("0")) {
+                this.getBonusScore(player).setText(Integer.toString(Engine.BONUS_VALUE));
+                this.getBonusScore(player).setForeground(Color.RED);
                 score += Engine.BONUS_VALUE;
             }
 
-            this.topScore.setText(Integer.toString(score));
+            this.getTopScore(player).setText(Integer.toString(score));
         } else {
-            int score = Integer.parseInt(this.bottomScore.getText()) + value;
-            this.bottomScore.setText(Integer.toString(score));
+            int score = Integer.parseInt(this.getBottomScore(player).getText()) + value;
+            this.getBottomScore(player).setText(Integer.toString(score));
         }
 
-        int score = Integer.parseInt(this.topScore.getText()) + Integer.parseInt(this.bottomScore.getText());
-        this.totalScore.setText(Integer.toString(score));
+        int score = Integer.parseInt(this.getTopScore(player).getText()) + Integer.parseInt(this.getBottomScore(player).getText());
+        this.getTotalScore(player).setText(Integer.toString(score));
 
         this.updatePanel();
     }
@@ -387,31 +496,6 @@ public class UserInterface {
     }
 
     /**
-     * Create grid values
-     *
-     * @param player
-     */
-    private void createGridValues(Player player) {
-        List<JLabel> labelList = new ArrayList<>();
-
-        for (int i = 0; i < TOP_SIZE; i++) {
-            JLabel label = this.createLabelOnGrid("0 ?", 1, i + 1);
-            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            labelList.add(label);
-            this.grid.add(label);
-        }
-
-        for (int i = 0; i < BOTTOM_SIZE; i++) {
-            JLabel label = this.createLabelOnGrid("0 ?", 1, TOP_SIZE + 3 + i);
-            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            labelList.add(label);
-            this.grid.add(label);
-        }
-
-        this.gridList.put(player, labelList);
-    }
-
-    /**
      * Create a label on grid
      *
      * @param text
@@ -421,7 +505,7 @@ public class UserInterface {
      * @return the label created
      */
     private JLabel createLabelOnGrid(String text, int gridPositionX, int gridPositionY) {
-        int x = 153 * gridPositionX + 136 * (gridPositionX - 1);
+        int x = 136 * gridPositionX + 17;
         int y = 23 * gridPositionY;
 
         JLabel label = new JLabel(text);
@@ -463,18 +547,53 @@ public class UserInterface {
      * @param player
      */
     private void createScores(Player player) {
-        this.topScore = this.createLabelOnGrid("0", player.getId(), 8);
-        this.bonusScore = this.createLabelOnGrid("0", player.getId(), 7);
-        this.bottomScore = this.createLabelOnGrid("0", player.getId(), 18);
-        this.totalScore = this.createLabelOnGrid("0", player.getId(), 19);
-        this.topScore.setForeground(Color.BLACK);
-        this.bonusScore.setForeground(Color.BLACK);
-        this.bottomScore.setForeground(Color.BLACK);
-        this.totalScore.setForeground(Color.BLACK);
-        this.grid.add(this.topScore);
-        this.grid.add(this.bonusScore);
-        this.grid.add(this.bottomScore);
-        this.grid.add(this.totalScore);
+        this.topScore.put(player, this.createLabelOnGrid("0", player.getId(), 8));
+        this.bonusScore.put(player, this.createLabelOnGrid("0", player.getId(), 7));
+        this.bottomScore.put(player, this.createLabelOnGrid("0", player.getId(), 18));
+        this.totalScore.put(player, this.createLabelOnGrid("0", player.getId(), 19));
+        this.getTopScore(player).setForeground(Color.BLACK);
+        this.getBonusScore(player).setForeground(Color.BLACK);
+        this.getBottomScore(player).setForeground(Color.BLACK);
+        this.getTotalScore(player).setForeground(Color.BLACK);
+        this.grid.add(this.getTopScore(player));
+        this.grid.add(this.getBonusScore(player));
+        this.grid.add(this.getBottomScore(player));
+        this.grid.add(this.getTotalScore(player));
+    }
+
+    /**
+     * Create window with default parameters
+     *
+     * @param window
+     */
+    private void createWindow(JFrame window) {
+        window.setSize(810, 610);
+        window.setLocationRelativeTo(null);
+        window.setResizable(false);
+        window.setIconImage(this.getIconImage());
+        window.setVisible(true);
+    }
+
+    /**
+     * Get the bonus score label of a player
+     *
+     * @param player
+     *
+     * @return the bonus score label
+     */
+    private JLabel getBonusScore(Player player) {
+        return this.bonusScore.get(player);
+    }
+
+    /**
+     * Get the bottom score label of a player
+     *
+     * @param player
+     *
+     * @return the bottom score label
+     */
+    private JLabel getBottomScore(Player player) {
+        return this.bottomScore.get(player);
     }
 
     /**
@@ -490,6 +609,28 @@ public class UserInterface {
         }
 
         return null;
+    }
+
+    /**
+     * Get the top score label of a player
+     *
+     * @param player
+     *
+     * @return the top score label
+     */
+    private JLabel getTopScore(Player player) {
+        return this.topScore.get(player);
+    }
+
+    /**
+     * Get the total score label of a player
+     *
+     * @param player
+     *
+     * @return the total score label
+     */
+    private JLabel getTotalScore(Player player) {
+        return this.totalScore.get(player);
     }
 
     /**

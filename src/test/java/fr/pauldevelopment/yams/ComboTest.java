@@ -186,6 +186,18 @@ public class ComboTest {
     }
 
     @Test
+    public void testFullHouseWithFourOfAKind() {
+        this.game.getDiceList().add(new Dice(4));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+        this.game.getDiceList().add(new Dice(2));
+
+        List<Integer> combinationList = this.game.getCombinationList();
+        assertEquals(0, combinationList.get(10));
+    }
+
+    @Test
     public void testFullHouseWithPairOnly() {
         this.game.getDiceList().add(new Dice(2));
         this.game.getDiceList().add(new Dice(2));

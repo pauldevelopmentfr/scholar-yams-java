@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -99,6 +100,50 @@ public class GameTest {
     public void testPlayerNameThatWillBeDisplayed() {
         Player paul = new Human("Paul");
         assertEquals("Paul", paul.getName());
+    }
+
+    @Test
+    public void testPodiumFirstPlayerScore() {
+        Player paul = new Human("Paul");
+        Player fred = new Human("Fred");
+
+        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.updateGridValueAndScore(paul, 0, 2);
+        this.game.updateGridValueAndScore(paul, 1, 6);
+        this.game.updateGridValueAndScore(paul, 2, 9);
+        this.game.updateGridValueAndScore(paul, 3, 12);
+        this.game.updateGridValueAndScore(paul, 4, 15);
+        this.game.updateGridValueAndScore(paul, 5, 18);
+        this.game.updateGridValueAndScore(fred, 0, 3);
+        this.game.updateGridValueAndScore(fred, 1, 6);
+        this.game.updateGridValueAndScore(fred, 2, 9);
+        this.game.updateGridValueAndScore(fred, 3, 12);
+        this.game.updateGridValueAndScore(fred, 4, 15);
+        this.game.updateGridValueAndScore(fred, 5, 18);
+
+        assertEquals(98, this.game.getPodium().get(fred));
+    }
+
+    @Test
+    public void testPodiumFirstSecondScore() {
+        Player paul = new Human("Paul");
+        Player fred = new Human("Fred");
+
+        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.updateGridValueAndScore(paul, 0, 2);
+        this.game.updateGridValueAndScore(paul, 1, 6);
+        this.game.updateGridValueAndScore(paul, 2, 9);
+        this.game.updateGridValueAndScore(paul, 3, 12);
+        this.game.updateGridValueAndScore(paul, 4, 15);
+        this.game.updateGridValueAndScore(paul, 5, 18);
+        this.game.updateGridValueAndScore(fred, 0, 3);
+        this.game.updateGridValueAndScore(fred, 1, 6);
+        this.game.updateGridValueAndScore(fred, 2, 9);
+        this.game.updateGridValueAndScore(fred, 3, 12);
+        this.game.updateGridValueAndScore(fred, 4, 15);
+        this.game.updateGridValueAndScore(fred, 5, 18);
+
+        assertEquals(62, this.game.getPodium().get(paul));
     }
 
     @Test
