@@ -12,10 +12,12 @@ public class Main {
         Engine engine = Engine.getInstance();
 
         List<Player> players = new ArrayList<>();
-        Human player = new Human("Player 1");
-        players.add(player);
+        Human player1 = new Human("Player 1");
+        Human player2 = new Human("Player 2");
+        players.add(player1);
+        players.add(player2);
 
         engine.initGame(players);
-        engine.start(player);
+        engine.start(player1);
     }
 }

@@ -112,7 +112,7 @@ public class Engine {
         this.userInterface.init(players);
 
         for (Player player : players) {
-            this.userInterface.updateGridValues(player);
+            this.userInterface.createGridValues(player);
             this.addGridListener(player);
             this.userInterface.hideGridSuggestions(player);
         }
