@@ -17,6 +17,18 @@ public interface Player {
     public String getName();
 
     /**
+     * Is grid finished
+     */
+    public boolean isGridFinished();
+
+    /**
+     * Set if grid is finished
+     *
+     * @param isGridFinished
+     */
+    public void setGridFinished(boolean isGridFinished);
+
+    /**
      * Set the player id
      *
      * @param id

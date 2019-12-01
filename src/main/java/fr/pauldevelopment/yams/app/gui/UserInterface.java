@@ -85,32 +85,6 @@ public class UserInterface {
     }
 
     /**
-     * Create grid values
-     *
-     * @param player
-     */
-    public void createGridValues(Player player) {
-        List<JLabel> labelList = new ArrayList<>();
-
-        for (int i = 0; i < TOP_SIZE; i++) {
-            JLabel label = this.createLabelOnGrid("0 ?", player.getId(), i + 1);
-            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            labelList.add(label);
-            this.grid.add(label);
-        }
-
-        for (int i = 0; i < BOTTOM_SIZE; i++) {
-            JLabel label = this.createLabelOnGrid("0 ?", player.getId(), TOP_SIZE + 3 + i);
-            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            labelList.add(label);
-            this.grid.add(label);
-        }
-
-        this.gridList.put(player, labelList);
-        this.updatePanel();
-    }
-
-    /**
      * Create a podium element
      *
      * @param text
@@ -241,6 +215,9 @@ public class UserInterface {
             this.grid.add(name);
             this.playerName.put(player, name);
             this.gridList.put(player, new ArrayList<>());
+
+            this.createGridValues(player);
+            this.hideGridSuggestions(player);
         }
     }
 
@@ -260,6 +237,7 @@ public class UserInterface {
         for (JButton dice : this.diceList) {
             this.updateDice(dice, "default.png");
             this.removeDiceBorder(dice);
+            dice.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
 
         this.rollButton.setEnabled(true);
@@ -306,6 +284,7 @@ public class UserInterface {
     public void updateDice(JButton dice, String fileName) {
         try {
             dice.setIcon(new ImageIcon(ImageIO.read(new File("src/main/resources/dice/" + fileName))));
+            dice.setCursor(new Cursor(Cursor.HAND_CURSOR));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -421,13 +400,11 @@ public class UserInterface {
             BufferedImage diceImage = ImageIO.read(new File("src/main/resources/" + fileName));
 
             dice = new JButton(new ImageIcon(diceImage));
-
             dice.setBorder(new LineBorder(Color.RED, 3));
             dice.setBorderPainted(false);
             dice.setContentAreaFilled(false);
             dice.setSize(diceImage.getWidth(), diceImage.getHeight());
             dice.setLocation(x, y);
-            dice.setCursor(new Cursor(Cursor.HAND_CURSOR));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -493,6 +470,32 @@ public class UserInterface {
      */
     private JLabel createGrid() {
         return this.createElement("grid.png", MARGIN_LEFT, 10);
+    }
+
+    /**
+     * Create grid values
+     *
+     * @param player
+     */
+    private void createGridValues(Player player) {
+        List<JLabel> labelList = new ArrayList<>();
+
+        for (int i = 0; i < TOP_SIZE; i++) {
+            JLabel label = this.createLabelOnGrid("0 ?", player.getId(), i + 1);
+            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            labelList.add(label);
+            this.grid.add(label);
+        }
+
+        for (int i = 0; i < BOTTOM_SIZE; i++) {
+            JLabel label = this.createLabelOnGrid("0 ?", player.getId(), TOP_SIZE + 3 + i);
+            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            labelList.add(label);
+            this.grid.add(label);
+        }
+
+        this.gridList.put(player, labelList);
+        this.updatePanel();
     }
 
     /**

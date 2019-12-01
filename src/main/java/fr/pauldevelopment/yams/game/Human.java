@@ -2,6 +2,7 @@ package fr.pauldevelopment.yams.game;
 
 public class Human implements Player {
 
+    private boolean gridFinished;
     private int id;
     private String name;
 
@@ -17,6 +18,16 @@ public class Human implements Player {
     @Override
     public String getName() {
         return this.name;
+    }
+
+    @Override
+    public boolean isGridFinished() {
+        return this.gridFinished;
+    }
+
+    @Override
+    public void setGridFinished(boolean isGridFinished) {
+        this.gridFinished = isGridFinished;
     }
 
     @Override
