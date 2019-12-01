@@ -120,7 +120,7 @@ public class Engine {
     public void initGame() {
         List<Player> playerList = new ArrayList<>(this.game.getPlayers().values());
 
-        this.game.init(playerList);
+        this.game.init();
         this.userInterface.init(playerList);
         this.init(playerList);
     }

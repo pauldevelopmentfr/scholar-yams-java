@@ -185,13 +185,10 @@ public class Game {
 
     /**
      * Init the game
-     *
-     * @param players
      */
-    public void init(List<Player> players) {
-        for (int i = 0; i < players.size(); i++) {
-            Player player = players.get(i);
-            this.addPlayer(player);
+    public void init() {
+        for (int i = 1; i < this.players.size() + 1; i++) {
+            Player player = this.players.get(i);
 
             if (this.currentPlayer == null) {
                 this.setCurrentPlayer(player);
@@ -202,7 +199,7 @@ public class Game {
             this.topScore.put(player, 0);
             this.totalScore.put(player, 0);
 
-            player.setId(i + 1);
+            player.setId(i);
             player.setGridFinished(false);
         }
 

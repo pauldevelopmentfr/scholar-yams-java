@@ -5,9 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -51,7 +48,8 @@ public class GameTest {
     public void testBonusValueIsGivenOnceOnlyBonusScore() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 5, 30);
         this.game.updateGridValueAndScore(paul, 4, 25);
         this.game.updateGridValueAndScore(paul, 3, 20);
@@ -65,7 +63,8 @@ public class GameTest {
     public void testBonusValueIsGivenOnceOnlyTopScore() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 5, 30);
         this.game.updateGridValueAndScore(paul, 4, 25);
         this.game.updateGridValueAndScore(paul, 3, 20);
@@ -79,7 +78,8 @@ public class GameTest {
     public void testBonusValueIsGivenOnceOnlyTotalScore() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 5, 30);
         this.game.updateGridValueAndScore(paul, 6, 12);
         this.game.updateGridValueAndScore(paul, 4, 25);
@@ -95,7 +95,9 @@ public class GameTest {
         Player paul = new Human("Paul");
         Player fred = new Human("Fred");
 
-        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.addPlayer(paul);
+        this.game.addPlayer(fred);
+        this.game.init();
         this.game.changeCurrentPlayer();
         this.game.changeCurrentPlayer();
 
@@ -107,7 +109,9 @@ public class GameTest {
         Player paul = new Human("Paul");
         Player fred = new Human("Fred");
 
-        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.addPlayer(paul);
+        this.game.addPlayer(fred);
+        this.game.init();
         this.game.changeCurrentPlayer();
 
         assertEquals(fred, this.game.getCurrentPlayer());
@@ -123,7 +127,9 @@ public class GameTest {
         Player paul = new Human("Paul");
         Player fred = new Human("Fred");
 
-        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.addPlayer(paul);
+        this.game.addPlayer(fred);
+        this.game.init();
 
         assertEquals(paul, this.game.getCurrentPlayer());
     }
@@ -132,7 +138,8 @@ public class GameTest {
     public void testGameInit() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
 
         assertEquals(1, paul.getId());
     }
@@ -142,7 +149,9 @@ public class GameTest {
         Player paul = new Human("Paul");
         Player fred = new Human("Fred");
 
-        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.addPlayer(paul);
+        this.game.addPlayer(fred);
+        this.game.init();
 
         assertEquals(2, fred.getId());
     }
@@ -152,7 +161,9 @@ public class GameTest {
         Player paul = new Human("Paul");
         Player fred = new Human("Fred");
 
-        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.addPlayer(paul);
+        this.game.addPlayer(fred);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 3);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -194,7 +205,9 @@ public class GameTest {
         Player paul = new Human("Paul");
         Player fred = new Human("Fred");
 
-        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.addPlayer(paul);
+        this.game.addPlayer(fred);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 3);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -236,7 +249,8 @@ public class GameTest {
     public void testGameWithFullPlayerGrid() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 3);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -262,7 +276,8 @@ public class GameTest {
     public void testGameWithNotFullPlayerGrid() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 3);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -294,7 +309,8 @@ public class GameTest {
     public void testGridWithBonusValue() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 3);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -308,7 +324,8 @@ public class GameTest {
     public void testGridWithBonusValueTopScore() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 3);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -323,7 +340,8 @@ public class GameTest {
     public void testGridWithBonusValueTotalScore() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 3);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -338,7 +356,8 @@ public class GameTest {
     public void testGridWithoutBonusValue() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 2);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -361,7 +380,9 @@ public class GameTest {
         Player paul = new Human("Paul");
         Player fred = new Human("Fred");
 
-        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.addPlayer(paul);
+        this.game.addPlayer(fred);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 2);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -383,7 +404,9 @@ public class GameTest {
         Player paul = new Human("Paul");
         Player fred = new Human("Fred");
 
-        this.game.init(new ArrayList<>(Arrays.asList(paul, fred)));
+        this.game.addPlayer(paul);
+        this.game.addPlayer(fred);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 0, 2);
         this.game.updateGridValueAndScore(paul, 1, 6);
         this.game.updateGridValueAndScore(paul, 2, 9);
@@ -432,7 +455,8 @@ public class GameTest {
     public void testUpdateGridValueCheckTopScore() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 5, 6);
 
         assertEquals(6, this.game.getTopScore(paul));
@@ -442,7 +466,8 @@ public class GameTest {
     public void testUpdateGridValueCheckTopScoreWithoutPoints() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 6, 6);
 
         assertEquals(0, this.game.getTopScore(paul));
@@ -452,7 +477,8 @@ public class GameTest {
     public void testUpdateGridValueCheckTotalScore() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 6, 6);
 
         assertEquals(6, this.game.getTotalScore(paul));
@@ -462,7 +488,8 @@ public class GameTest {
     public void testUpdateGridValueCheckValue() {
         Player paul = new Human("Paul");
 
-        this.game.init(new ArrayList<>(Collections.singleton(paul)));
+        this.game.addPlayer(paul);
+        this.game.init();
         this.game.updateGridValueAndScore(paul, 6, 6);
 
         assertEquals(6, this.game.getGridList(paul).get(6));
