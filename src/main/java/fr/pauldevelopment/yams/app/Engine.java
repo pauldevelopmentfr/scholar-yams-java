@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -17,6 +16,7 @@ import fr.pauldevelopment.yams.app.gui.UserInterface;
 import fr.pauldevelopment.yams.exceptions.TooMuchPlayersException;
 import fr.pauldevelopment.yams.game.Dice;
 import fr.pauldevelopment.yams.game.Game;
+import fr.pauldevelopment.yams.game.Human;
 import fr.pauldevelopment.yams.game.Player;
 
 public class Engine {
@@ -26,13 +26,8 @@ public class Engine {
     public static final int NUMBER_OF_DICE = 5;
     private static Engine instance;
     private static final int ROLL_LIMIT = 3;
-    private Player currentPlayer;
     private Map<Dice, JButton> diceList = new HashMap<>();
     private Game game;
-    private Map<Player, Boolean> playerHasFinished = new HashMap<>();
-    private Map<Integer, Player> players = new HashMap<>();
-    private int remainingHalves = 0;
-    private AtomicInteger rollCount = new AtomicInteger(0);
     private UserInterface userInterface;
 
     /**
@@ -81,10 +76,19 @@ public class Engine {
                     Engine.this.userInterface.updateGridValue(label, value);
                     Engine.this.userInterface.updateScores(player, comboSquare, value);
                     Engine.this.resetGameStatus(player);
-                    Engine.this.rollCount.set(0);
+                    Engine.this.game.resetRollCount();
                     Engine.this.changePlayer();
-                    Engine.this.checkIfPlayerHasFinished(player);
-                    Engine.this.checkIfGameIsOver();
+                    Engine.this.game.checkIfPlayerHasFinished(player);
+
+                    if (Engine.this.game.isGameOver()) {
+                        Engine.this.userInterface.createPodiumWindow(Engine.this.game.getPodium());
+
+                        if (Engine.this.game.getRemainingHalves() > 0) {
+                            Engine.this.resetEngine();
+                        } else {
+                            Engine.this.userInterface.getRollButton().setEnabled(false);
+                        }
+                    }
                 }
 
                 @Override
@@ -112,45 +116,30 @@ public class Engine {
 
     /**
      * Initialize game
-     *
-     * @param players
-     * @param halves
-     *
-     * @throws TooMuchPlayersException
      */
-    public void initGame(List<Player> players, int halves) throws TooMuchPlayersException {
-        if (players.size() > 4) {
-            throw new TooMuchPlayersException("You can't run a game with more than 4 players");
-        }
+    public void initGame() {
+        List<Player> playerList = new ArrayList<>(this.game.getPlayers().values());
 
-        this.remainingHalves = halves - 1;
-        this.game.init(players);
-
-        this.userInterface.init(players);
-
-        for (Player player : players) {
-            this.players.put(player.getId(), player);
-            if (this.currentPlayer == null) {
-                this.currentPlayer = player;
-            }
-            this.userInterface.createGridValues(player);
-            this.addGridListener(player);
-            this.userInterface.hideGridSuggestions(player);
-            this.playerHasFinished.put(player, false);
-        }
-
-        this.userInterface.changeCurrentPlayer(this.currentPlayer);
+        this.game.init();
+        this.userInterface.init(playerList);
+        this.init(playerList);
     }
 
     /**
-     * Start the engine
+     * Run the engine
+     *
+     * @throws TooMuchPlayersException
      */
-    public void start() {
+    public void run() throws TooMuchPlayersException {
+        if (this.game.getPlayers().size() > 4) {
+            throw new TooMuchPlayersException("You can't run a game with more than 4 players");
+        }
+
         for (Dice dice : this.game.getDiceList()) {
             JButton graphicalDiceRelated = this.diceList.get(dice);
 
             graphicalDiceRelated.addActionListener(e -> {
-                if (dice.getValue() != 0) {
+                if (dice.getValue() != 0 && graphicalDiceRelated.getCursor().getName().equals(new Cursor(Cursor.HAND_CURSOR).getName())) {
                     dice.updateKeepStatus();
                     this.userInterface.updateDiceSelection(graphicalDiceRelated);
                 }
@@ -170,69 +159,49 @@ public class Engine {
 
             this.getCurrentPlayerGrid();
 
-            if (this.rollCount.incrementAndGet() == ROLL_LIMIT) {
+            if (this.game.incrementAndGetRollCount() == ROLL_LIMIT) {
                 rollButton.setEnabled(false);
             }
         });
     }
 
     /**
+     * Start the engine
+     */
+    public void start() {
+        this.game.addPlayer(new Human("Player 1"));
+        this.game.addPlayer(new Human("Player 2"));
+        this.game.addPlayer(new Human("Player 3"));
+        this.game.addPlayer(new Human("Player 4"));
+        this.game.setRemainingHalves(2);
+    }
+
+    /**
      * Change the current player
      */
     private void changePlayer() {
-        int currentPlayerId = this.currentPlayer.getId();
-        int maxPlayerId = this.players.size();
-
-        int id = 1;
-
-        if (currentPlayerId != maxPlayerId) {
-            id = currentPlayerId + 1;
-        }
-
-        this.currentPlayer = this.players.get(id);
-        this.userInterface.changeCurrentPlayer(this.currentPlayer);
-    }
-
-    /**
-     * Check if game is over
-     */
-    private void checkIfGameIsOver() {
-        AtomicInteger isOver = new AtomicInteger(0);
-
-        this.playerHasFinished.forEach((k, v) -> {
-            if (v.booleanValue()) {
-                isOver.incrementAndGet();
-            }
-        });
-
-        if (isOver.get() == this.playerHasFinished.size()) {
-            this.userInterface.createPodiumWindow(this.game.getPodium());
-
-            if (this.remainingHalves > 0) {
-                this.resetEngine();
-            } else {
-                this.userInterface.getRollButton().setEnabled(false);
-            }
-        }
-    }
-
-    /**
-     * Check if player has finished his grid
-     *
-     * @param player
-     */
-    private void checkIfPlayerHasFinished(Player player) {
-        if (!Engine.this.game.getGridList(player).contains(-1)) {
-            Engine.this.playerHasFinished.put(player, true);
-        }
+        this.userInterface.changeCurrentPlayer(this.game.changeCurrentPlayer());
     }
 
     /**
      * Get the grid of the current player
      */
     private void getCurrentPlayerGrid() {
-        this.userInterface.updateGridSuggestions(this.currentPlayer, this.game.getCombinationList());
-        this.userInterface.showGridSuggestions(this.currentPlayer);
+        this.userInterface.updateGridSuggestions(this.game.getCurrentPlayer(), this.game.getCombinationList());
+        this.userInterface.showGridSuggestions(this.game.getCurrentPlayer());
+    }
+
+    /**
+     * Initialize engine
+     *
+     * @param playerList
+     */
+    private void init(List<Player> playerList) {
+        for (Player player : playerList) {
+            this.addGridListener(player);
+        }
+
+        this.userInterface.changeCurrentPlayer(this.game.getCurrentPlayer());
     }
 
     /**
@@ -242,13 +211,7 @@ public class Engine {
      */
     private void resetEngine() {
         this.userInterface.resetInterface();
-
-        try {
-            this.initGame(new ArrayList<>(this.players.values()), this.remainingHalves);
-        } catch (TooMuchPlayersException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+        this.initGame();
     }
 
     /**
