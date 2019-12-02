@@ -2,7 +2,10 @@ package fr.pauldevelopment.yams.app.gui;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,10 +16,14 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
@@ -29,6 +36,8 @@ public class UserInterface {
 
     private static final int BOTTOM_SIZE = 9;
     private static final int MARGIN_LEFT = 48;
+    private static final int MENU_BUTTON_HEIGHT = 40;
+    private static final int MENU_BUTTON_WIDTH = 400;
     private static final int PODIUM_FIRST_X = 315;
     private static final int PODIUM_FIRST_Y = 172;
     private static final int PODIUM_HEIGHT = 78;
@@ -51,7 +60,9 @@ public class UserInterface {
     private HashMap<Player, JLabel> playerName = new HashMap<>();
     private JButton rollButton;
     private HashMap<Player, JLabel> topScore = new HashMap<>();
+
     private HashMap<Player, JLabel> totalScore = new HashMap<>();
+
     private JFrame window = new JFrame();
 
     /**
@@ -63,14 +74,7 @@ public class UserInterface {
         this.createWindow(this.window);
         this.window.add(this.panel);
         this.panel.setLayout(null);
-        this.diceContainer = this.createDiceContainer();
-        this.diceList = this.createDiceList();
-        this.addDiceListToContainer();
-        this.rollButton = this.createRollButton();
-
-        this.grid = this.createGrid();
-
-        this.addElementsToPanel();
+        this.initGameContent();
     }
 
     /**
@@ -273,6 +277,32 @@ public class UserInterface {
         }
 
         this.updatePanel();
+    }
+
+    /**
+     * Start the user interface
+     */
+    public void start() {
+        int centerButton = this.window.getWidth() / 2 - 200;
+
+        JButton startButton = this.createMenuButton("Start a new game", centerButton, 200, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        JButton creditsButton = this.createMenuButton("See credits", centerButton, 250, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        JButton quitButton = this.createMenuButton("Exit", centerButton, 300, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+
+        this.panel.add(this.createElement("logo.png", 260, 50));
+        this.panel.add(startButton);
+        this.panel.add(creditsButton);
+        this.panel.add(quitButton);
+        this.updatePanel();
+
+        startButton.addActionListener(e -> {
+            this.panel.removeAll();
+            this.addElementsToPanel();
+        });
+
+        creditsButton.addActionListener(e -> JOptionPane.showMessageDialog(null, "This program has been developped by Paul Sinnah for a school project."));
+
+        quitButton.addActionListener(e -> System.exit(0));
     }
 
     /**
@@ -520,6 +550,70 @@ public class UserInterface {
     }
 
     /**
+     * Create a menu button
+     *
+     * @paramtextg
+     * @param centerButton
+     * @param i
+     * @param menuButtonWidth
+     * @param menuButtonHeight
+     *
+     * @return the menu button created
+     */
+    private JButton createMenuButton(String text, int x, int y, int menuButtonWidth, int menuButtonHeight) {
+        JButton button = new JButton(text);
+
+        button.setIcon(new ImageIcon("src/main/resources/button.png"));
+        button.setHorizontalTextPosition(SwingConstants.CENTER);
+        button.setVerticalTextPosition(SwingConstants.CENTER);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBounds(x, y, menuButtonWidth, menuButtonHeight);
+        button.setFont(new Font("Verdana", Font.PLAIN, 16));
+        button.setForeground(Color.BLACK);
+
+        button.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                button.setIcon(new ImageIcon("src/main/resources/button.png"));
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setIcon(new ImageIcon("src/main/resources/buttonHover.png"));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setIcon(new ImageIcon("src/main/resources/button.png"));
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                File sound = new File("src/main/resources/sounds/button.wav");
+
+                try {
+                    AudioInputStream audio = AudioSystem.getAudioInputStream(sound.toURI().toURL());
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(audio);
+                    clip.start();
+                } catch (Exception exception) {
+                    exception.getMessage();
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                button.setIcon(new ImageIcon("src/main/resources/button.png"));
+            }
+
+        });
+
+        return button;
+    }
+
+    /**
      * Create the roll button
      *
      * @return the roll button
@@ -527,15 +621,10 @@ public class UserInterface {
     private JButton createRollButton() {
         JButton button = new JButton();
 
-        try {
-            BufferedImage rollButtonImage = ImageIO.read(new File("src/main/resources/roll.png"));
-            button.setIcon(new ImageIcon(rollButtonImage));
-            button.setSize(rollButtonImage.getWidth(), rollButtonImage.getHeight());
-            button.setLocation(MARGIN_LEFT + 497, UNDER_GRID_Y);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        ImageIcon rollButtonImage = new ImageIcon("src/main/resources/roll.png");
+        button.setIcon(rollButtonImage);
+        button.setSize(rollButtonImage.getIconWidth(), rollButtonImage.getIconHeight());
+        button.setLocation(MARGIN_LEFT + 497, UNDER_GRID_Y);
         button.setOpaque(false);
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
@@ -634,6 +723,17 @@ public class UserInterface {
      */
     private JLabel getTotalScore(Player player) {
         return this.totalScore.get(player);
+    }
+
+    /**
+     * Load game content
+     */
+    private void initGameContent() {
+        this.grid = this.createGrid();
+        this.diceContainer = this.createDiceContainer();
+        this.diceList = this.createDiceList();
+        this.rollButton = this.createRollButton();
+        this.addDiceListToContainer();
     }
 
     /**
