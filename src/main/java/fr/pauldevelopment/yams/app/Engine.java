@@ -4,11 +4,16 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
@@ -16,7 +21,6 @@ import fr.pauldevelopment.yams.app.gui.UserInterface;
 import fr.pauldevelopment.yams.exceptions.TooMuchPlayersException;
 import fr.pauldevelopment.yams.game.Dice;
 import fr.pauldevelopment.yams.game.Game;
-import fr.pauldevelopment.yams.game.Human;
 import fr.pauldevelopment.yams.game.Player;
 
 public class Engine {
@@ -34,12 +38,8 @@ public class Engine {
      * Private constructor to hide the implicit public one
      */
     private Engine() {
-        this.userInterface = new UserInterface();
         this.game = new Game();
-
-        for (int i = 0; i < NUMBER_OF_DICE; i++) {
-            this.diceList.put(this.game.getDiceList().get(i), this.userInterface.getDiceList().get(i));
-        }
+        this.userInterface = new UserInterface();
     }
 
     /**
@@ -103,77 +103,67 @@ public class Engine {
 
                 @Override
                 public void mousePressed(MouseEvent e) {
-                    // Useless for this mouse listener
+                    label.setForeground(Color.BLACK);
                 }
 
                 @Override
                 public void mouseReleased(MouseEvent e) {
-                    // Useless for this mouse listener
+                    label.setForeground(Color.GRAY);
                 }
             });
         }
-    }
-
-    /**
-     * Initialize game
-     */
-    public void initGame() {
-        List<Player> playerList = new ArrayList<>(this.game.getPlayers().values());
-
-        this.game.init();
-        this.userInterface.init(playerList);
-        this.init(playerList);
-    }
-
-    /**
-     * Run the engine
-     *
-     * @throws TooMuchPlayersException
-     */
-    public void run() throws TooMuchPlayersException {
-        if (this.game.getPlayers().size() > 4) {
-            throw new TooMuchPlayersException("You can't run a game with more than 4 players");
-        }
-
-        for (Dice dice : this.game.getDiceList()) {
-            JButton graphicalDiceRelated = this.diceList.get(dice);
-
-            graphicalDiceRelated.addActionListener(e -> {
-                if (dice.getValue() != 0 && graphicalDiceRelated.getCursor().getName().equals(new Cursor(Cursor.HAND_CURSOR).getName())) {
-                    dice.updateKeepStatus();
-                    this.userInterface.updateDiceSelection(graphicalDiceRelated);
-                }
-            });
-        }
-
-        JButton rollButton = this.userInterface.getRollButton();
-
-        rollButton.addActionListener(e -> {
-            for (Dice dice : this.game.getDiceList()) {
-                JButton graphicalDiceRelated = this.diceList.get(dice);
-                dice.roll();
-
-                this.userInterface.updateDice(graphicalDiceRelated, dice.getValue() + ".png");
-                this.userInterface.removeDiceBorder(graphicalDiceRelated);
-            }
-
-            this.getCurrentPlayerGrid();
-
-            if (this.game.incrementAndGetRollCount() == ROLL_LIMIT) {
-                rollButton.setEnabled(false);
-            }
-        });
     }
 
     /**
      * Start the engine
      */
     public void start() {
-        this.game.addPlayer(new Human("Player 1"));
-        this.game.addPlayer(new Human("Player 2"));
-        this.game.addPlayer(new Human("Player 3"));
-        this.game.addPlayer(new Human("Player 4"));
-        this.game.setRemainingHalves(2);
+        Thread gameConfiguration = new Thread() {
+
+            @Override
+            public void run() {
+                Engine.this.userInterface.start();
+
+                while (!Engine.this.userInterface.isReadyToConfigure()) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        };
+
+        Thread gameStart = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    gameConfiguration.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+
+                for (Player player : Engine.this.userInterface.getPlayersToCreate()) {
+                    Engine.this.game.addPlayer(player);
+                }
+
+                Engine.this.game.setRemainingHalves(Engine.this.userInterface.getAmountOfHalvesToInit());
+                Engine.this.initGame();
+
+                try {
+                    Engine.this.run();
+                } catch (TooMuchPlayersException e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
+        };
+
+        gameConfiguration.start();
+        gameStart.start();
     }
 
     /**
@@ -205,6 +195,21 @@ public class Engine {
     }
 
     /**
+     * Initialize game
+     */
+    private void initGame() {
+        List<Player> playerList = new ArrayList<>(this.game.getPlayers().values());
+
+        for (int i = 0; i < NUMBER_OF_DICE; i++) {
+            this.diceList.put(this.game.getDiceList().get(i), this.userInterface.getDiceList().get(i));
+        }
+
+        this.game.init();
+        this.userInterface.init(playerList);
+        this.init(playerList);
+    }
+
+    /**
      * Reset engine
      *
      * @throws TooMuchPlayersException
@@ -223,5 +228,56 @@ public class Engine {
         this.game.resetDiceList();
         this.userInterface.hideGridSuggestions(player);
         this.userInterface.resetDiceSelection();
+    }
+
+    /**
+     * Run the engine
+     *
+     * @throws TooMuchPlayersException
+     */
+    private void run() throws TooMuchPlayersException {
+        if (this.game.getPlayers().size() > 4) {
+            throw new TooMuchPlayersException("You can't run a game with more than 4 players");
+        }
+
+        for (Dice dice : this.game.getDiceList()) {
+            JButton graphicalDiceRelated = this.diceList.get(dice);
+
+            graphicalDiceRelated.addActionListener(e -> {
+                if (dice.getValue() != 0 && graphicalDiceRelated.getCursor().getName().equals(new Cursor(Cursor.HAND_CURSOR).getName())) {
+                    dice.updateKeepStatus();
+                    this.userInterface.updateDiceSelection(graphicalDiceRelated);
+                }
+            });
+        }
+
+        JButton rollButton = this.userInterface.getRollButton();
+
+        rollButton.addActionListener(e -> {
+            File sound = new File("src/main/resources/sounds/dice.wav");
+
+            try {
+                AudioInputStream audio = AudioSystem.getAudioInputStream(sound.toURI().toURL());
+                Clip clip = AudioSystem.getClip();
+                clip.open(audio);
+                clip.start();
+            } catch (Exception exception) {
+                exception.getMessage();
+            }
+
+            for (Dice dice : this.game.getDiceList()) {
+                JButton graphicalDiceRelated = this.diceList.get(dice);
+                dice.roll();
+
+                this.userInterface.updateDice(graphicalDiceRelated, dice.getValue() + ".png");
+                this.userInterface.removeDiceBorder(graphicalDiceRelated);
+            }
+
+            this.getCurrentPlayerGrid();
+
+            if (this.game.incrementAndGetRollCount() == ROLL_LIMIT) {
+                rollButton.setEnabled(false);
+            }
+        });
     }
 }

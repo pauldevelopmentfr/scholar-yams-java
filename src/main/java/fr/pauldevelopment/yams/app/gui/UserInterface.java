@@ -2,7 +2,10 @@ package fr.pauldevelopment.yams.app.gui;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,22 +16,37 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 
 import fr.pauldevelopment.yams.app.Engine;
+import fr.pauldevelopment.yams.game.Computer;
+import fr.pauldevelopment.yams.game.Human;
 import fr.pauldevelopment.yams.game.Player;
 
 public class UserInterface {
 
     private static final int BOTTOM_SIZE = 9;
+    private static final int CONFIGURATION_PLAYER_HEIGHT = 25;
+    private static final int CONFIGURATION_PLAYER_LABEL_Y = 220;
+    private static final int CONFIGURATION_PLAYER_NAME_Y = 250;
+    private static final int CONFIGURATION_PLAYER_SELECT_Y = 280;
+    private static final int CONFIGURATION_PLAYER_WIDTH = 100;
     private static final int MARGIN_LEFT = 48;
+    private static final int MENU_BUTTON_HEIGHT = 40;
+    private static final int MENU_BUTTON_WIDTH = 400;
     private static final int PODIUM_FIRST_X = 315;
     private static final int PODIUM_FIRST_Y = 172;
     private static final int PODIUM_HEIGHT = 78;
@@ -41,15 +59,21 @@ public class UserInterface {
     private static final int TOP_SIZE = 6;
     private static final int UNDER_GRID_Y = 486;
 
+    private int amountOfHalvesToInit;
     private HashMap<Player, JLabel> bonusScore = new HashMap<>();
     private HashMap<Player, JLabel> bottomScore = new HashMap<>();
     private JLabel diceContainer;
     private List<JButton> diceList;
+    private JLabel error = new JLabel();
     private JLabel grid;
     private Map<Player, List<JLabel>> gridList = new HashMap<>();
     private JPanel panel = new CustomPanel();
-    private HashMap<Player, JLabel> playerName = new HashMap<>();
+    private Map<Player, JLabel> playerName = new HashMap<>();
+    private List<Player> playersToCreate = new ArrayList<>();
+    private boolean readyToConfigure = false;
     private JButton rollButton;
+    private JButton runGameButton;
+    private String[] selectablePlayers = { "Disabled", "Human", "Computer" };
     private HashMap<Player, JLabel> topScore = new HashMap<>();
     private HashMap<Player, JLabel> totalScore = new HashMap<>();
     private JFrame window = new JFrame();
@@ -63,14 +87,7 @@ public class UserInterface {
         this.createWindow(this.window);
         this.window.add(this.panel);
         this.panel.setLayout(null);
-        this.diceContainer = this.createDiceContainer();
-        this.diceList = this.createDiceList();
-        this.addDiceListToContainer();
-        this.rollButton = this.createRollButton();
-
-        this.grid = this.createGrid();
-
-        this.addElementsToPanel();
+        this.initGameContent();
     }
 
     /**
@@ -143,6 +160,15 @@ public class UserInterface {
     }
 
     /**
+     * Get the amount of halves to init
+     *
+     * @return the amount of halves to init
+     */
+    public int getAmountOfHalvesToInit() {
+        return this.amountOfHalvesToInit;
+    }
+
+    /**
      * Get the combo square using y coordinate
      *
      * @param y the lattitude
@@ -178,12 +204,30 @@ public class UserInterface {
     }
 
     /**
+     * Get the players to create
+     *
+     * @return the players to create
+     */
+    public List<Player> getPlayersToCreate() {
+        return this.playersToCreate;
+    }
+
+    /**
      * Get the roll button
      *
      * @return the roll button
      */
     public JButton getRollButton() {
         return this.rollButton;
+    }
+
+    /**
+     * Get the run game button
+     *
+     * @return the run game button
+     */
+    public JButton getRunGameButton() {
+        return this.runGameButton;
     }
 
     /**
@@ -219,6 +263,15 @@ public class UserInterface {
             this.createGridValues(player);
             this.hideGridSuggestions(player);
         }
+    }
+
+    /**
+     * Is ready to configure
+     *
+     * @return true if yes, false if not
+     */
+    public boolean isReadyToConfigure() {
+        return this.readyToConfigure;
     }
 
     /**
@@ -273,6 +326,33 @@ public class UserInterface {
         }
 
         this.updatePanel();
+    }
+
+    /**
+     * Start the user interface
+     */
+    public void start() {
+        int centerButton = this.window.getWidth() / 2 - 200;
+
+        JButton startButton = this.createMenuButton("Start a new game", centerButton, 200, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        JButton creditsButton = this.createMenuButton("See credits", centerButton, 250, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+        JButton quitButton = this.createMenuButton("Exit", centerButton, 300, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+
+        this.panel.add(this.createElement("logo.png", 260, 50));
+        this.panel.add(startButton);
+        this.panel.add(creditsButton);
+        this.panel.add(quitButton);
+        this.updatePanel();
+
+        startButton.addActionListener(e -> {
+            this.panel.removeAll();
+            this.createGameSettingsPanel();
+            this.updatePanel();
+        });
+
+        creditsButton.addActionListener(e -> JOptionPane.showMessageDialog(null, "This program has been developped by Paul Sinnah for a school project."));
+
+        quitButton.addActionListener(e -> System.exit(0));
     }
 
     /**
@@ -381,7 +461,35 @@ public class UserInterface {
         this.panel.add(this.grid);
         this.panel.add(this.rollButton);
         this.panel.add(this.diceContainer);
-        this.updatePanel();
+    }
+
+    /**
+     * Check game settings validity
+     *
+     * @param players
+     * @param amountOfHalves
+     *
+     * @return true if there is no mistakes, false if there are
+     */
+    private boolean checkGameSettingsValidity(List<Player> players, int amountOfHalves) {
+        if (!players.isEmpty() && amountOfHalves > 0) {
+            return true;
+        }
+
+        String text = "Unexcepted error has been occured";
+
+        if (players.isEmpty()) {
+            text = "You have to create at least one player !";
+        } else if (amountOfHalves <= 0) {
+            text = "You have to write how many rounds you want !";
+        }
+
+        this.error.setText(text);
+        this.error.setForeground(Color.RED);
+        this.error.setBounds(0, 190, 800, 30);
+        this.error.setHorizontalAlignment(SwingConstants.CENTER);
+
+        return false;
     }
 
     /**
@@ -464,6 +572,152 @@ public class UserInterface {
     }
 
     /**
+     * Create a game settings text field
+     *
+     * @param x
+     *
+     * @return the text field created
+     */
+    private JComboBox<String> createGameSettingsComboBox(int x) {
+        JComboBox<String> comboBox = new JComboBox<>(this.selectablePlayers);
+        comboBox.setBounds(x, CONFIGURATION_PLAYER_NAME_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
+        return comboBox;
+    }
+
+    /**
+     * Create a game settings label
+     *
+     * @param text
+     * @param x
+     *
+     * @return the label created
+     */
+    private JLabel createGameSettingsLabel(String text, int x) {
+        JLabel label = new JLabel(text);
+        label.setBounds(x, CONFIGURATION_PLAYER_LABEL_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
+        return label;
+    }
+
+    /**
+     * Create game settings panel
+     */
+    private void createGameSettingsPanel() {
+        this.runGameButton = this.createMenuButton("Start a new game", 200, 390, MENU_BUTTON_WIDTH, MENU_BUTTON_HEIGHT);
+
+        this.panel.add(this.createElement("logo.png", 260, 50));
+        this.panel.add(this.error);
+
+        JLabel playerLabel1 = this.createGameSettingsLabel("Player 1", 76);
+        JTextField playerField1 = this.createGameSettingsTextField(50);
+        JComboBox<String> selectPlayer1 = this.createGameSettingsComboBox(50);
+        this.panel.add(playerLabel1);
+        this.panel.add(playerField1);
+        this.panel.add(selectPlayer1);
+
+        JLabel playerLabel2 = this.createGameSettingsLabel("Player 2", 276);
+        JTextField playerField2 = this.createGameSettingsTextField(250);
+        JComboBox<String> selectPlayer2 = this.createGameSettingsComboBox(250);
+        this.panel.add(playerLabel2);
+        this.panel.add(playerField2);
+        this.panel.add(selectPlayer2);
+
+        JLabel playerLabel3 = this.createGameSettingsLabel("Player 3", 476);
+        JTextField playerField3 = this.createGameSettingsTextField(450);
+        JComboBox<String> selectPlayer3 = this.createGameSettingsComboBox(450);
+        this.panel.add(playerLabel3);
+        this.panel.add(playerField3);
+        this.panel.add(selectPlayer3);
+
+        JLabel playerLabel4 = this.createGameSettingsLabel("Player 4", 676);
+        JTextField playerField4 = this.createGameSettingsTextField(650);
+        JComboBox<String> selectPlayer4 = this.createGameSettingsComboBox(650);
+        this.panel.add(playerLabel4);
+        this.panel.add(playerField4);
+        this.panel.add(selectPlayer4);
+
+        JLabel roundLabel = new JLabel("Write here how many rounds you want to play");
+        JTextField numberRounds = new JTextField();
+        roundLabel.setBounds(200, 320, MENU_BUTTON_WIDTH, 25);
+        numberRounds.setBounds(200, 350, MENU_BUTTON_WIDTH, 25);
+
+        this.panel.add(roundLabel);
+        this.panel.add(numberRounds);
+        this.panel.add(this.runGameButton);
+
+        this.getRunGameButton().addActionListener(e -> {
+            this.playersToCreate.clear();
+
+            switch (selectPlayer1.getSelectedItem().toString()) {
+                case "Human":
+                    this.playersToCreate.add(new Human(playerField1.getText()));
+                    break;
+                case "Computer":
+                    this.playersToCreate.add(new Computer(playerField1.getText()));
+                    break;
+                default:
+                    break;
+            }
+
+            switch (selectPlayer2.getSelectedItem().toString()) {
+                case "Human":
+                    this.playersToCreate.add(new Human(playerField2.getText()));
+                    break;
+                case "Computer":
+                    this.playersToCreate.add(new Computer(playerField2.getText()));
+                    break;
+                default:
+                    break;
+            }
+
+            switch (selectPlayer3.getSelectedItem().toString()) {
+                case "Human":
+                    this.playersToCreate.add(new Human(playerField3.getText()));
+                    break;
+                case "Computer":
+                    this.playersToCreate.add(new Computer(playerField3.getText()));
+                    break;
+                default:
+                    break;
+            }
+
+            switch (selectPlayer4.getSelectedItem().toString()) {
+                case "Human":
+                    this.playersToCreate.add(new Human(playerField4.getText()));
+                    break;
+                case "Computer":
+                    this.playersToCreate.add(new Computer(playerField4.getText()));
+                    break;
+                default:
+                    break;
+            }
+
+            int amountOfHalves = numberRounds.getText().trim().isEmpty() ? 0 : Integer.parseInt(numberRounds.getText());
+
+            if (this.checkGameSettingsValidity(this.playersToCreate, amountOfHalves)) {
+                this.panel.removeAll();
+                this.readyToConfigure = true;
+                this.amountOfHalvesToInit = amountOfHalves;
+                this.addElementsToPanel();
+            }
+
+            this.updatePanel();
+        });
+    }
+
+    /**
+     * Create a game settings text field
+     *
+     * @param x
+     *
+     * @return the text field created
+     */
+    private JTextField createGameSettingsTextField(int x) {
+        JTextField textField = new JTextField();
+        textField.setBounds(x, CONFIGURATION_PLAYER_SELECT_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
+        return textField;
+    }
+
+    /**
      * Create the grid
      *
      * @return the grid created
@@ -513,10 +767,74 @@ public class UserInterface {
 
         JLabel label = new JLabel(text);
         label.setLocation(x + 10, y);
-        label.setSize(135, 22);
+        label.setSize(125, 22);
         label.setForeground(Color.GRAY);
 
         return label;
+    }
+
+    /**
+     * Create a menu button
+     *
+     * @paramtextg
+     * @param centerButton
+     * @param i
+     * @param menuButtonWidth
+     * @param menuButtonHeight
+     *
+     * @return the menu button created
+     */
+    private JButton createMenuButton(String text, int x, int y, int menuButtonWidth, int menuButtonHeight) {
+        JButton button = new JButton(text);
+
+        button.setIcon(new ImageIcon("src/main/resources/button.png"));
+        button.setHorizontalTextPosition(SwingConstants.CENTER);
+        button.setVerticalTextPosition(SwingConstants.CENTER);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBounds(x, y, menuButtonWidth, menuButtonHeight);
+        button.setFont(new Font("Verdana", Font.PLAIN, 16));
+        button.setForeground(Color.BLACK);
+
+        button.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                button.setIcon(new ImageIcon("src/main/resources/button.png"));
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setIcon(new ImageIcon("src/main/resources/buttonHover.png"));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setIcon(new ImageIcon("src/main/resources/button.png"));
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                File sound = new File("src/main/resources/sounds/button.wav");
+
+                try {
+                    AudioInputStream audio = AudioSystem.getAudioInputStream(sound.toURI().toURL());
+                    Clip clip = AudioSystem.getClip();
+                    clip.open(audio);
+                    clip.start();
+                } catch (Exception exception) {
+                    exception.getMessage();
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                button.setIcon(new ImageIcon("src/main/resources/button.png"));
+            }
+
+        });
+
+        return button;
     }
 
     /**
@@ -527,15 +845,10 @@ public class UserInterface {
     private JButton createRollButton() {
         JButton button = new JButton();
 
-        try {
-            BufferedImage rollButtonImage = ImageIO.read(new File("src/main/resources/roll.png"));
-            button.setIcon(new ImageIcon(rollButtonImage));
-            button.setSize(rollButtonImage.getWidth(), rollButtonImage.getHeight());
-            button.setLocation(MARGIN_LEFT + 497, UNDER_GRID_Y);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        ImageIcon rollButtonImage = new ImageIcon("src/main/resources/roll.png");
+        button.setIcon(rollButtonImage);
+        button.setSize(rollButtonImage.getIconWidth(), rollButtonImage.getIconHeight());
+        button.setLocation(MARGIN_LEFT + 497, UNDER_GRID_Y);
         button.setOpaque(false);
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
@@ -634,6 +947,17 @@ public class UserInterface {
      */
     private JLabel getTotalScore(Player player) {
         return this.totalScore.get(player);
+    }
+
+    /**
+     * Load game content
+     */
+    private void initGameContent() {
+        this.grid = this.createGrid();
+        this.diceContainer = this.createDiceContainer();
+        this.diceList = this.createDiceList();
+        this.rollButton = this.createRollButton();
+        this.addDiceListToContainer();
     }
 
     /**

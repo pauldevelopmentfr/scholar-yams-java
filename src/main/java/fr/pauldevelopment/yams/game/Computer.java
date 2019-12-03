@@ -1,17 +1,17 @@
 package fr.pauldevelopment.yams.game;
 
-public class Human implements Player {
+public class Computer implements Player {
 
     private boolean gridFinished;
     private int id;
     private String name;
 
     /**
-     * Human constructor
+     * Computer constructor
      *
      * @param name
      */
-    public Human(String name) {
+    public Computer(String name) {
         this.name = name;
     }
 
