@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -20,7 +21,6 @@ import fr.pauldevelopment.yams.app.gui.UserInterface;
 import fr.pauldevelopment.yams.exceptions.TooMuchPlayersException;
 import fr.pauldevelopment.yams.game.Dice;
 import fr.pauldevelopment.yams.game.Game;
-import fr.pauldevelopment.yams.game.Human;
 import fr.pauldevelopment.yams.game.Player;
 
 public class Engine {
@@ -118,21 +118,52 @@ public class Engine {
      * Start the engine
      */
     public void start() {
-        this.userInterface.start();
-        this.game.addPlayer(new Human("Player 1"));
-        this.game.addPlayer(new Human("Player 2"));
-        this.game.addPlayer(new Human("Player 3"));
-        this.game.addPlayer(new Human("Player 4"));
-        this.game.setRemainingHalves(2);
+        Thread gameConfiguration = new Thread() {
 
-        this.initGame();
+            @Override
+            public void run() {
+                Engine.this.userInterface.start();
 
-        try {
-            this.run();
-        } catch (TooMuchPlayersException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
+                while (!Engine.this.userInterface.isReadyToConfigure()) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        };
+
+        Thread gameStart = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    gameConfiguration.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+
+                for (Player player : Engine.this.userInterface.getPlayersToCreate()) {
+                    Engine.this.game.addPlayer(player);
+                }
+
+                Engine.this.game.setRemainingHalves(Engine.this.userInterface.getAmountOfHalvesToInit());
+                Engine.this.initGame();
+
+                try {
+                    Engine.this.run();
+                } catch (TooMuchPlayersException e) {
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
+        };
+
+        gameConfiguration.start();
+        gameStart.start();
     }
 
     /**
