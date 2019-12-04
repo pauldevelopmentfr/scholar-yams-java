@@ -78,6 +78,13 @@ public class Engine {
                     Engine.this.resetGameStatus(player);
                     Engine.this.game.resetRollCount();
                     Engine.this.changePlayer();
+
+                    if (Engine.this.userInterface.getCheatModeStatus()) {
+                        Engine.this.getCurrentPlayerGrid();
+                    } else {
+                        Engine.this.userInterface.resetDiceSelection();
+                    }
+
                     Engine.this.game.checkIfPlayerHasFinished(player);
 
                     if (Engine.this.game.isGameOver()) {
@@ -174,6 +181,39 @@ public class Engine {
     }
 
     /**
+     * Create a cheated dice list
+     */
+    private void createCheatedDiceList() {
+        for (Dice dice : this.game.getDiceList()) {
+            dice.incrementValue();
+            JButton graphicalDiceRelated = this.diceList.get(dice);
+            this.userInterface.updateDice(graphicalDiceRelated, dice.getValue() + ".png");
+
+            graphicalDiceRelated.addActionListener(e -> {
+                dice.incrementValue();
+                this.userInterface.updateDice(graphicalDiceRelated, dice.getValue() + ".png");
+                this.getCurrentPlayerGrid();
+            });
+        }
+    }
+
+    /**
+     * Create a normal dice list
+     */
+    private void createDiceList() {
+        for (Dice dice : this.game.getDiceList()) {
+            JButton graphicalDiceRelated = this.diceList.get(dice);
+
+            graphicalDiceRelated.addActionListener(e -> {
+                if (dice.getValue() != 0 && graphicalDiceRelated.getCursor().getName().equals(new Cursor(Cursor.HAND_CURSOR).getName())) {
+                    dice.updateKeepStatus();
+                    this.userInterface.updateDiceSelection(graphicalDiceRelated);
+                }
+            });
+        }
+    }
+
+    /**
      * Get the grid of the current player
      */
     private void getCurrentPlayerGrid() {
@@ -227,7 +267,6 @@ public class Engine {
     private void resetGameStatus(Player player) {
         this.game.resetDiceList();
         this.userInterface.hideGridSuggestions(player);
-        this.userInterface.resetDiceSelection();
     }
 
     /**
@@ -238,17 +277,6 @@ public class Engine {
     private void run() throws TooMuchPlayersException {
         if (this.game.getPlayers().size() > 4) {
             throw new TooMuchPlayersException("You can't run a game with more than 4 players");
-        }
-
-        for (Dice dice : this.game.getDiceList()) {
-            JButton graphicalDiceRelated = this.diceList.get(dice);
-
-            graphicalDiceRelated.addActionListener(e -> {
-                if (dice.getValue() != 0 && graphicalDiceRelated.getCursor().getName().equals(new Cursor(Cursor.HAND_CURSOR).getName())) {
-                    dice.updateKeepStatus();
-                    this.userInterface.updateDiceSelection(graphicalDiceRelated);
-                }
-            });
         }
 
         JButton rollButton = this.userInterface.getRollButton();
@@ -279,5 +307,13 @@ public class Engine {
                 rollButton.setEnabled(false);
             }
         });
+
+        if (this.userInterface.getCheatModeStatus()) {
+            rollButton.setEnabled(false);
+            this.createCheatedDiceList();
+            this.getCurrentPlayerGrid();
+        } else {
+            this.createDiceList();
+        }
     }
 }

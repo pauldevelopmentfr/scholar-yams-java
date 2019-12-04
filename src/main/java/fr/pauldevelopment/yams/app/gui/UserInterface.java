@@ -39,6 +39,7 @@ import fr.pauldevelopment.yams.game.Player;
 public class UserInterface {
 
     private static final int BOTTOM_SIZE = 9;
+    private static final int CHEAT_MODE_Y = 536;
     private static final int CONFIGURATION_PLAYER_HEIGHT = 25;
     private static final int CONFIGURATION_PLAYER_LABEL_Y = 220;
     private static final int CONFIGURATION_PLAYER_NAME_Y = 250;
@@ -62,6 +63,7 @@ public class UserInterface {
     private int amountOfHalvesToInit;
     private HashMap<Player, JLabel> bonusScore = new HashMap<>();
     private HashMap<Player, JLabel> bottomScore = new HashMap<>();
+    private boolean cheatModeStatus = false;
     private JLabel diceContainer;
     private List<JButton> diceList;
     private JLabel error = new JLabel();
@@ -74,6 +76,7 @@ public class UserInterface {
     private JButton rollButton;
     private JButton runGameButton;
     private String[] selectablePlayers = { "Disabled", "Human", "Computer" };
+    private String[] selectableStatus = { "Disabled", "Enabled" };
     private HashMap<Player, JLabel> topScore = new HashMap<>();
     private HashMap<Player, JLabel> totalScore = new HashMap<>();
     private JFrame window = new JFrame();
@@ -166,6 +169,15 @@ public class UserInterface {
      */
     public int getAmountOfHalvesToInit() {
         return this.amountOfHalvesToInit;
+    }
+
+    /**
+     * Get the cheat mode status
+     *
+     * @return true if is enabled, false if is disabled
+     */
+    public boolean getCheatModeStatus() {
+        return this.cheatModeStatus;
     }
 
     /**
@@ -639,9 +651,16 @@ public class UserInterface {
         JTextField numberRounds = new JTextField();
         roundLabel.setBounds(200, 320, MENU_BUTTON_WIDTH, 25);
         numberRounds.setBounds(200, 350, MENU_BUTTON_WIDTH, 25);
-
         this.panel.add(roundLabel);
         this.panel.add(numberRounds);
+
+        JLabel cheatModeLabel = new JLabel("Cheat mode");
+        JComboBox<String> cheatModeSelect = new JComboBox<>(this.selectableStatus);
+        cheatModeLabel.setBounds(604, CHEAT_MODE_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
+        cheatModeSelect.setBounds(684, CHEAT_MODE_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
+        this.panel.add(cheatModeLabel);
+        this.panel.add(cheatModeSelect);
+
         this.panel.add(this.runGameButton);
 
         this.getRunGameButton().addActionListener(e -> {
@@ -689,6 +708,10 @@ public class UserInterface {
                     break;
                 default:
                     break;
+            }
+
+            if (cheatModeSelect.getSelectedItem().toString().equals("Enabled")) {
+                this.cheatModeStatus = true;
             }
 
             int amountOfHalves = numberRounds.getText().trim().isEmpty() ? 0 : Integer.parseInt(numberRounds.getText());

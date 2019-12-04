@@ -5,7 +5,7 @@ import java.util.Random;
 public class Dice {
 
     private boolean keepDice = false;
-    private int value;
+    private int value = 0;
 
     /**
      * Dice constructor
@@ -30,6 +30,17 @@ public class Dice {
      */
     public int getValue() {
         return this.value;
+    }
+
+    /**
+     * Increment the dice value
+     */
+    public void incrementValue() {
+        if (this.value == 6) {
+            this.value = 0;
+        }
+
+        this.value++;
     }
 
     /**
