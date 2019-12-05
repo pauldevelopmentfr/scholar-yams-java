@@ -32,14 +32,12 @@ import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 
 import fr.pauldevelopment.yams.app.Engine;
-import fr.pauldevelopment.yams.game.Computer;
-import fr.pauldevelopment.yams.game.Human;
 import fr.pauldevelopment.yams.game.Player;
 
 public class UserInterface {
 
+    private static final int BOTTOM_RIGHT_Y = 536;
     private static final int BOTTOM_SIZE = 9;
-    private static final int CHEAT_MODE_Y = 536;
     private static final int CONFIGURATION_PLAYER_HEIGHT = 25;
     private static final int CONFIGURATION_PLAYER_LABEL_Y = 220;
     private static final int CONFIGURATION_PLAYER_NAME_Y = 250;
@@ -126,8 +124,9 @@ public class UserInterface {
      * Create the podium window
      *
      * @param players
+     * @param remainingHalves
      */
-    public void createPodiumWindow(Map<Player, Integer> players) {
+    public void createPodiumWindow(Map<Player, Integer> players, int remainingHalves) {
         JFrame podium = new JFrame();
         podium.setTitle("Podium");
         podium.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -157,6 +156,11 @@ public class UserInterface {
 
             rank.set(i + 1);
         });
+
+        int gameNumber = this.getAmountOfHalvesToInit() - remainingHalves;
+        JLabel gameNumberLabel = new JLabel("Game n°" + gameNumber);
+        gameNumberLabel.setBounds(721, BOTTOM_RIGHT_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
+        customPanel.add(gameNumberLabel);
 
         customPanel.revalidate();
         customPanel.repaint();
@@ -476,21 +480,34 @@ public class UserInterface {
     }
 
     /**
+     * Add a player to the player creation list
+     *
+     * @param playerField
+     * @param selectPlayer
+     *
+     * @return the player created
+     */
+    private Player addPlayerToCreate(JTextField playerField, JComboBox<String> selectPlayer) {
+        Player newPlayer = new Player(playerField.getText().trim());
+        newPlayer.setComputer(selectPlayer.getSelectedItem().toString().equals("Computer"));
+        return newPlayer;
+    }
+
+    /**
      * Check game settings validity
      *
-     * @param players
      * @param amountOfHalves
      *
      * @return true if there is no mistakes, false if there are
      */
-    private boolean checkGameSettingsValidity(List<Player> players, int amountOfHalves) {
-        if (!players.isEmpty() && amountOfHalves > 0) {
+    private boolean checkGameSettingsValidity(int amountOfHalves) {
+        if (!this.playersToCreate.isEmpty() && amountOfHalves > 0) {
             return true;
         }
 
         String text = "Unexcepted error has been occured";
 
-        if (players.isEmpty()) {
+        if (this.playersToCreate.isEmpty()) {
             text = "You have to create at least one player !";
         } else if (amountOfHalves <= 0) {
             text = "You have to write how many rounds you want !";
@@ -656,8 +673,8 @@ public class UserInterface {
 
         JLabel cheatModeLabel = new JLabel("Cheat mode");
         JComboBox<String> cheatModeSelect = new JComboBox<>(this.selectableStatus);
-        cheatModeLabel.setBounds(604, CHEAT_MODE_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
-        cheatModeSelect.setBounds(684, CHEAT_MODE_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
+        cheatModeLabel.setBounds(604, BOTTOM_RIGHT_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
+        cheatModeSelect.setBounds(684, BOTTOM_RIGHT_Y, CONFIGURATION_PLAYER_WIDTH, CONFIGURATION_PLAYER_HEIGHT);
         this.panel.add(cheatModeLabel);
         this.panel.add(cheatModeSelect);
 
@@ -666,48 +683,20 @@ public class UserInterface {
         this.getRunGameButton().addActionListener(e -> {
             this.playersToCreate.clear();
 
-            switch (selectPlayer1.getSelectedItem().toString()) {
-                case "Human":
-                    this.playersToCreate.add(new Human(playerField1.getText()));
-                    break;
-                case "Computer":
-                    this.playersToCreate.add(new Computer(playerField1.getText()));
-                    break;
-                default:
-                    break;
+            if (!selectPlayer1.getSelectedItem().toString().equals("Disabled")) {
+                this.playersToCreate.add(this.addPlayerToCreate(playerField1, selectPlayer1));
             }
 
-            switch (selectPlayer2.getSelectedItem().toString()) {
-                case "Human":
-                    this.playersToCreate.add(new Human(playerField2.getText()));
-                    break;
-                case "Computer":
-                    this.playersToCreate.add(new Computer(playerField2.getText()));
-                    break;
-                default:
-                    break;
+            if (!selectPlayer2.getSelectedItem().toString().equals("Disabled")) {
+                this.playersToCreate.add(this.addPlayerToCreate(playerField2, selectPlayer2));
             }
 
-            switch (selectPlayer3.getSelectedItem().toString()) {
-                case "Human":
-                    this.playersToCreate.add(new Human(playerField3.getText()));
-                    break;
-                case "Computer":
-                    this.playersToCreate.add(new Computer(playerField3.getText()));
-                    break;
-                default:
-                    break;
+            if (!selectPlayer3.getSelectedItem().toString().equals("Disabled")) {
+                this.playersToCreate.add(this.addPlayerToCreate(playerField3, selectPlayer3));
             }
 
-            switch (selectPlayer4.getSelectedItem().toString()) {
-                case "Human":
-                    this.playersToCreate.add(new Human(playerField4.getText()));
-                    break;
-                case "Computer":
-                    this.playersToCreate.add(new Computer(playerField4.getText()));
-                    break;
-                default:
-                    break;
+            if (!selectPlayer4.getSelectedItem().toString().equals("Disabled")) {
+                this.playersToCreate.add(this.addPlayerToCreate(playerField4, selectPlayer4));
             }
 
             if (cheatModeSelect.getSelectedItem().toString().equals("Enabled")) {
@@ -716,7 +705,7 @@ public class UserInterface {
 
             int amountOfHalves = numberRounds.getText().trim().isEmpty() ? 0 : Integer.parseInt(numberRounds.getText());
 
-            if (this.checkGameSettingsValidity(this.playersToCreate, amountOfHalves)) {
+            if (this.checkGameSettingsValidity(amountOfHalves)) {
                 this.panel.removeAll();
                 this.readyToConfigure = true;
                 this.amountOfHalvesToInit = amountOfHalves;

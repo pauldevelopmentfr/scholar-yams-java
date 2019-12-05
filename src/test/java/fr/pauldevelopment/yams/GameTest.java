@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import fr.pauldevelopment.yams.app.Engine;
 import fr.pauldevelopment.yams.game.Dice;
 import fr.pauldevelopment.yams.game.Game;
-import fr.pauldevelopment.yams.game.Human;
 import fr.pauldevelopment.yams.game.Player;
 
 public class GameTest {
@@ -29,7 +28,7 @@ public class GameTest {
     public void testAddPlayer() {
         int oldSize = this.game.getPlayers().size();
 
-        this.game.addPlayer(new Human("Paul"));
+        this.game.addPlayer(new Player("Paul"));
 
         assertEquals(oldSize + 1, this.game.getPlayers().size());
     }
@@ -38,15 +37,15 @@ public class GameTest {
     public void testAddTwoPlayers() {
         int oldSize = this.game.getPlayers().size();
 
-        this.game.addPlayer(new Human("Paul"));
-        this.game.addPlayer(new Human("Fred"));
+        this.game.addPlayer(new Player("Paul"));
+        this.game.addPlayer(new Player("Fred"));
 
         assertEquals(oldSize + 2, this.game.getPlayers().size());
     }
 
     @Test
     public void testBonusValueIsGivenOnceOnlyBonusScore() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -61,7 +60,7 @@ public class GameTest {
 
     @Test
     public void testBonusValueIsGivenOnceOnlyTopScore() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -76,7 +75,7 @@ public class GameTest {
 
     @Test
     public void testBonusValueIsGivenOnceOnlyTotalScore() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -92,8 +91,8 @@ public class GameTest {
 
     @Test
     public void testChangePlayerFirstPlayer() {
-        Player paul = new Human("Paul");
-        Player fred = new Human("Fred");
+        Player paul = new Player("Paul");
+        Player fred = new Player("Fred");
 
         this.game.addPlayer(paul);
         this.game.addPlayer(fred);
@@ -106,8 +105,8 @@ public class GameTest {
 
     @Test
     public void testChangePlayerNextPlayer() {
-        Player paul = new Human("Paul");
-        Player fred = new Human("Fred");
+        Player paul = new Player("Paul");
+        Player fred = new Player("Fred");
 
         this.game.addPlayer(paul);
         this.game.addPlayer(fred);
@@ -118,14 +117,21 @@ public class GameTest {
     }
 
     @Test
+    public void testComputer() {
+        Player computer = new Player("PC");
+        computer.setComputer(true);
+        assertTrue(computer.isComputer());
+    }
+
+    @Test
     public void testCreateGame() {
         assertEquals(5, this.game.getDiceList().size());
     }
 
     @Test
     public void testCurrentPlayer() {
-        Player paul = new Human("Paul");
-        Player fred = new Human("Fred");
+        Player paul = new Player("Paul");
+        Player fred = new Player("Fred");
 
         this.game.addPlayer(paul);
         this.game.addPlayer(fred);
@@ -136,7 +142,7 @@ public class GameTest {
 
     @Test
     public void testGameInit() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -146,8 +152,8 @@ public class GameTest {
 
     @Test
     public void testGameInitWithMultiplePlayers() {
-        Player paul = new Human("Paul");
-        Player fred = new Human("Fred");
+        Player paul = new Player("Paul");
+        Player fred = new Player("Fred");
 
         this.game.addPlayer(paul);
         this.game.addPlayer(fred);
@@ -158,8 +164,8 @@ public class GameTest {
 
     @Test
     public void testGameIsNotOver() {
-        Player paul = new Human("Paul");
-        Player fred = new Human("Fred");
+        Player paul = new Player("Paul");
+        Player fred = new Player("Fred");
 
         this.game.addPlayer(paul);
         this.game.addPlayer(fred);
@@ -202,8 +208,8 @@ public class GameTest {
 
     @Test
     public void testGameIsOver() {
-        Player paul = new Human("Paul");
-        Player fred = new Human("Fred");
+        Player paul = new Player("Paul");
+        Player fred = new Player("Fred");
 
         this.game.addPlayer(paul);
         this.game.addPlayer(fred);
@@ -247,7 +253,7 @@ public class GameTest {
 
     @Test
     public void testGameWithFullPlayerGrid() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -274,7 +280,7 @@ public class GameTest {
 
     @Test
     public void testGameWithNotFullPlayerGrid() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -300,14 +306,14 @@ public class GameTest {
 
     @Test
     public void testGameWithoutInit() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         assertEquals(0, paul.getId());
     }
 
     @Test
     public void testGridWithBonusValue() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -322,7 +328,7 @@ public class GameTest {
 
     @Test
     public void testGridWithBonusValueTopScore() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -338,7 +344,7 @@ public class GameTest {
 
     @Test
     public void testGridWithBonusValueTotalScore() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -354,7 +360,7 @@ public class GameTest {
 
     @Test
     public void testGridWithoutBonusValue() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -370,15 +376,15 @@ public class GameTest {
 
     @Test
     public void testPlayerNameThatWillBeDisplayed() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         assertEquals("Paul", paul.getName());
     }
 
     @Test
     public void testPodiumFirstPlayerScore() {
-        Player paul = new Human("Paul");
-        Player fred = new Human("Fred");
+        Player paul = new Player("Paul");
+        Player fred = new Player("Fred");
 
         this.game.addPlayer(paul);
         this.game.addPlayer(fred);
@@ -401,8 +407,8 @@ public class GameTest {
 
     @Test
     public void testPodiumFirstSecondScore() {
-        Player paul = new Human("Paul");
-        Player fred = new Human("Fred");
+        Player paul = new Player("Paul");
+        Player fred = new Player("Fred");
 
         this.game.addPlayer(paul);
         this.game.addPlayer(fred);
@@ -442,18 +448,18 @@ public class GameTest {
 
     @Test
     public void testRollCount() {
-        this.game.incrementAndGetRollCount();
-        this.game.incrementAndGetRollCount();
-        this.game.incrementAndGetRollCount();
+        this.game.incrementRollCount();
+        this.game.incrementRollCount();
+        this.game.incrementRollCount();
 
         this.game.resetRollCount();
 
-        assertEquals(1, this.game.incrementAndGetRollCount());
+        assertEquals(0, this.game.getRollCount());
     }
 
     @Test
     public void testUpdateGridValueCheckTopScore() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -464,7 +470,7 @@ public class GameTest {
 
     @Test
     public void testUpdateGridValueCheckTopScoreWithoutPoints() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -475,7 +481,7 @@ public class GameTest {
 
     @Test
     public void testUpdateGridValueCheckTotalScore() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();
@@ -486,7 +492,7 @@ public class GameTest {
 
     @Test
     public void testUpdateGridValueCheckValue() {
-        Player paul = new Human("Paul");
+        Player paul = new Player("Paul");
 
         this.game.addPlayer(paul);
         this.game.init();

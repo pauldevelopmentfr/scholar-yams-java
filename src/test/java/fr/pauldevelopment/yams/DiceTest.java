@@ -22,6 +22,29 @@ public class DiceTest {
     }
 
     @Test
+    public void testIncrementDiceMaxValue() {
+        this.dice = new Dice(6);
+        this.dice.incrementValue();
+        assertEquals(1, this.dice.getValue());
+    }
+
+    @Test
+    public void testIncrementDiceValue() {
+        int oldValue = this.dice.getValue();
+        this.dice.incrementValue();
+
+        int futureValue;
+
+        if (oldValue == 6) {
+            futureValue = 1;
+        } else {
+            futureValue = oldValue + 1;
+        }
+
+        assertEquals(futureValue, this.dice.getValue());
+    }
+
+    @Test
     public void testRollAfterDecidedToChange() {
         int oldValue = this.dice.getValue();
 
