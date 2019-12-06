@@ -30,12 +30,13 @@ public class Engine {
     public static final int BONUS_ELIGIBILITY = 63;
     public static final int BONUS_VALUE = 35;
     public static final int NUMBER_OF_DICE = 5;
-    private static final int BOT_REACTION_TIME = 500;
+    private static final int BOT_REACTION_TIME = 1000;
     private static Engine instance;
     private static final int ROLL_LIMIT = 3;
     private Map<Dice, JButton> diceList = new HashMap<>();
     private Game game;
     private UserInterface userInterface;
+    private boolean containsHumanPlayer = false;
 
     /**
      * Private constructor to hide the implicit public one
@@ -135,6 +136,10 @@ public class Engine {
 
                 for (Player player : Engine.this.userInterface.getPlayersToCreate()) {
                     Engine.this.game.addPlayer(player);
+
+                    if (!player.isComputer()) {
+                        Engine.this.containsHumanPlayer = true;
+                    }
                 }
 
                 Engine.this.game.setRemainingHalves(Engine.this.userInterface.getAmountOfHalvesToInit());
@@ -159,11 +164,13 @@ public class Engine {
      * @param player
      */
     private void artificialIntelligencePlay(Player player) {
-        try {
-            TimeUnit.MILLISECONDS.sleep(BOT_REACTION_TIME);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            Thread.currentThread().interrupt();
+        if (!this.containsHumanPlayer) {
+            try {
+                TimeUnit.MILLISECONDS.sleep(BOT_REACTION_TIME);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
         }
 
         this.rollDice();
@@ -304,17 +311,6 @@ public class Engine {
      * Roll the dice list
      */
     private void rollDice() {
-        File sound = new File("src/main/resources/sounds/dice.wav");
-
-        try {
-            AudioInputStream audio = AudioSystem.getAudioInputStream(sound.toURI().toURL());
-            Clip clip = AudioSystem.getClip();
-            clip.open(audio);
-            clip.start();
-        } catch (Exception exception) {
-            exception.getMessage();
-        }
-
         for (Dice dice : this.game.getDiceList()) {
             JButton graphicalDiceRelated = this.diceList.get(dice);
             dice.roll();
@@ -343,7 +339,20 @@ public class Engine {
 
         JButton rollButton = this.userInterface.getRollButton();
 
-        rollButton.addActionListener(e -> this.rollDice());
+        rollButton.addActionListener(e -> {
+            File sound = new File("src/main/resources/sounds/dice.wav");
+
+            try {
+                AudioInputStream audio = AudioSystem.getAudioInputStream(sound.toURI().toURL());
+                Clip clip = AudioSystem.getClip();
+                clip.open(audio);
+                clip.start();
+            } catch (Exception exception) {
+                exception.getMessage();
+            }
+
+            this.rollDice();
+        });
 
         if (this.userInterface.getCheatModeStatus()) {
             rollButton.setEnabled(false);
