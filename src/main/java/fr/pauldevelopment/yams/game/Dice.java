@@ -11,7 +11,7 @@ public class Dice {
      * Dice constructor
      */
     public Dice() {
-
+        // Default constructor is empty
     }
 
     /**

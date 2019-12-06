@@ -155,6 +155,15 @@ public class Game {
     }
 
     /**
+     * Get the roll count
+     *
+     * @return the roll count
+     */
+    public int getRollCount() {
+        return this.rollCount;
+    }
+
+    /**
      * Get the top score of a player
      *
      * @param player
@@ -177,10 +186,10 @@ public class Game {
     }
 
     /**
-     * Increment and get the amount of roll count
+     * Increment the amount of roll count
      */
-    public int incrementAndGetRollCount() {
-        return ++this.rollCount;
+    public void incrementRollCount() {
+        this.rollCount++;
     }
 
     /**

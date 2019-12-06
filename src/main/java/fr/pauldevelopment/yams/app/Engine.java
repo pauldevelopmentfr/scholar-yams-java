@@ -19,6 +19,8 @@ import javax.swing.JLabel;
 
 import fr.pauldevelopment.yams.app.gui.UserInterface;
 import fr.pauldevelopment.yams.exceptions.TooMuchPlayersException;
+import fr.pauldevelopment.yams.game.ArtificialIntelligence;
+import fr.pauldevelopment.yams.game.Combo;
 import fr.pauldevelopment.yams.game.Dice;
 import fr.pauldevelopment.yams.game.Game;
 import fr.pauldevelopment.yams.game.Player;
@@ -28,6 +30,7 @@ public class Engine {
     public static final int BONUS_ELIGIBILITY = 63;
     public static final int BONUS_VALUE = 35;
     public static final int NUMBER_OF_DICE = 5;
+    private static final int BOT_REACTION_TIME = 500;
     private static Engine instance;
     private static final int ROLL_LIMIT = 3;
     private Map<Dice, JButton> diceList = new HashMap<>();
@@ -72,30 +75,7 @@ public class Engine {
                     int comboSquare = Engine.this.userInterface.getComboSquareByLatitude(label.getY());
                     int value = Integer.parseInt(label.getText().substring(0, label.getText().length() - 2).trim());
 
-                    Engine.this.game.updateGridValueAndScore(player, comboSquare, value);
-                    Engine.this.userInterface.updateGridValue(label, value);
-                    Engine.this.userInterface.updateScores(player, comboSquare, value);
-                    Engine.this.resetGameStatus(player);
-                    Engine.this.game.resetRollCount();
-                    Engine.this.changePlayer();
-
-                    if (Engine.this.userInterface.getCheatModeStatus()) {
-                        Engine.this.getCurrentPlayerGrid();
-                    } else {
-                        Engine.this.userInterface.resetDiceSelection();
-                    }
-
-                    Engine.this.game.checkIfPlayerHasFinished(player);
-
-                    if (Engine.this.game.isGameOver()) {
-                        Engine.this.userInterface.createPodiumWindow(Engine.this.game.getPodium());
-
-                        if (Engine.this.game.getRemainingHalves() > 0) {
-                            Engine.this.resetEngine();
-                        } else {
-                            Engine.this.userInterface.getRollButton().setEnabled(false);
-                        }
-                    }
+                    Engine.this.updateGame(player, comboSquare, value);
                 }
 
                 @Override
@@ -133,7 +113,7 @@ public class Engine {
 
                 while (!Engine.this.userInterface.isReadyToConfigure()) {
                     try {
-                        TimeUnit.MILLISECONDS.sleep(200);
+                        TimeUnit.MILLISECONDS.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                         Thread.currentThread().interrupt();
@@ -171,6 +151,51 @@ public class Engine {
 
         gameConfiguration.start();
         gameStart.start();
+    }
+
+    /**
+     * Make the artificial intelligence play
+     *
+     * @param player
+     */
+    private void artificialIntelligencePlay(Player player) {
+        try {
+            TimeUnit.MILLISECONDS.sleep(BOT_REACTION_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Thread.currentThread().interrupt();
+        }
+
+        this.rollDice();
+
+        List<Dice> gameDiceList = this.game.getDiceList();
+        List<Integer> combinationList = Combo.getCombinationList(gameDiceList);
+        int maxOccurrencesDiceValue = ArtificialIntelligence.determinateDiceWithMaxOccurrences(this.game, player);
+        int numberOfOccurrences = Combo.countOccurrences(gameDiceList, maxOccurrencesDiceValue);
+        int combo = 0;
+
+        if (numberOfOccurrences == 5 && ArtificialIntelligence.isSquareFree(this.game, player, Combo.YAMS)) {
+            this.updateGame(player, Combo.YAMS, combinationList.get(Combo.YAMS));
+            return;
+        } else if (!combinationList.get(Combo.LARGE_STRAIGHT).equals(0) && ArtificialIntelligence.isSquareFree(this.game, player, Combo.LARGE_STRAIGHT)) {
+            this.updateGame(player, Combo.LARGE_STRAIGHT, combinationList.get(Combo.LARGE_STRAIGHT));
+            return;
+        } else if (!combinationList.get(Combo.SMALL_STRAIGHT).equals(0) && ArtificialIntelligence.isSquareFree(this.game, player, Combo.SMALL_STRAIGHT)) {
+            this.updateGame(player, Combo.SMALL_STRAIGHT, combinationList.get(Combo.SMALL_STRAIGHT));
+            return;
+        }
+
+        ArtificialIntelligence.thinkAboutStraights(this.game, player);
+
+        if (this.game.getRollCount() == 3) {
+            combo = ArtificialIntelligence.applyDefaultStrategy(this.game, player);
+            this.updateGame(player, combo, combinationList.get(combo));
+            return;
+        }
+
+        if (!player.isGridFinished()) {
+            this.artificialIntelligencePlay(player);
+        }
     }
 
     /**
@@ -228,10 +253,18 @@ public class Engine {
      */
     private void init(List<Player> playerList) {
         for (Player player : playerList) {
+            if (player.isComputer()) {
+                continue;
+            }
+
             this.addGridListener(player);
         }
 
         this.userInterface.changeCurrentPlayer(this.game.getCurrentPlayer());
+
+        if (this.game.getCurrentPlayer().isComputer()) {
+            this.artificialIntelligencePlay(this.game.getCurrentPlayer());
+        }
     }
 
     /**
@@ -251,8 +284,6 @@ public class Engine {
 
     /**
      * Reset engine
-     *
-     * @throws TooMuchPlayersException
      */
     private void resetEngine() {
         this.userInterface.resetInterface();
@@ -270,6 +301,37 @@ public class Engine {
     }
 
     /**
+     * Roll the dice list
+     */
+    private void rollDice() {
+        File sound = new File("src/main/resources/sounds/dice.wav");
+
+        try {
+            AudioInputStream audio = AudioSystem.getAudioInputStream(sound.toURI().toURL());
+            Clip clip = AudioSystem.getClip();
+            clip.open(audio);
+            clip.start();
+        } catch (Exception exception) {
+            exception.getMessage();
+        }
+
+        for (Dice dice : this.game.getDiceList()) {
+            JButton graphicalDiceRelated = this.diceList.get(dice);
+            dice.roll();
+
+            this.userInterface.updateDice(graphicalDiceRelated, dice.getValue() + ".png");
+            this.userInterface.removeDiceBorder(graphicalDiceRelated);
+        }
+
+        this.getCurrentPlayerGrid();
+        this.game.incrementRollCount();
+
+        if (this.game.getRollCount() == ROLL_LIMIT) {
+            this.userInterface.getRollButton().setEnabled(false);
+        }
+    }
+
+    /**
      * Run the engine
      *
      * @throws TooMuchPlayersException
@@ -281,32 +343,7 @@ public class Engine {
 
         JButton rollButton = this.userInterface.getRollButton();
 
-        rollButton.addActionListener(e -> {
-            File sound = new File("src/main/resources/sounds/dice.wav");
-
-            try {
-                AudioInputStream audio = AudioSystem.getAudioInputStream(sound.toURI().toURL());
-                Clip clip = AudioSystem.getClip();
-                clip.open(audio);
-                clip.start();
-            } catch (Exception exception) {
-                exception.getMessage();
-            }
-
-            for (Dice dice : this.game.getDiceList()) {
-                JButton graphicalDiceRelated = this.diceList.get(dice);
-                dice.roll();
-
-                this.userInterface.updateDice(graphicalDiceRelated, dice.getValue() + ".png");
-                this.userInterface.removeDiceBorder(graphicalDiceRelated);
-            }
-
-            this.getCurrentPlayerGrid();
-
-            if (this.game.incrementAndGetRollCount() == ROLL_LIMIT) {
-                rollButton.setEnabled(false);
-            }
-        });
+        rollButton.addActionListener(e -> this.rollDice());
 
         if (this.userInterface.getCheatModeStatus()) {
             rollButton.setEnabled(false);
@@ -314,6 +351,52 @@ public class Engine {
             this.getCurrentPlayerGrid();
         } else {
             this.createDiceList();
+        }
+    }
+
+    /**
+     * Update game
+     *
+     * @param player
+     * @param comboSquare
+     * @param value
+     */
+    private void updateGame(Player player, int comboSquare, int value) {
+        JLabel label = this.userInterface.getGridList().get(player).get(comboSquare);
+
+        if (label.getMouseListeners().length > 0) {
+            label.removeMouseListener(label.getMouseListeners()[0]);
+            label.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+
+        this.game.updateGridValueAndScore(player, comboSquare, value);
+        this.userInterface.updateGridValue(label, value);
+        this.userInterface.updateScores(player, comboSquare, value);
+        this.resetGameStatus(player);
+        this.game.resetRollCount();
+        this.changePlayer();
+        this.game.checkIfPlayerHasFinished(player);
+
+        if (this.game.isGameOver()) {
+            this.userInterface.createPodiumWindow(this.game.getPodium(), this.game.getRemainingHalves());
+
+            if (this.game.getRemainingHalves() > 0) {
+                this.resetEngine();
+            }
+        } else {
+            if (this.game.getCurrentPlayer().isComputer()) {
+                this.artificialIntelligencePlay(this.game.getCurrentPlayer());
+            }
+        }
+
+        if (this.userInterface.getCheatModeStatus()) {
+            this.getCurrentPlayerGrid();
+        } else {
+            this.userInterface.resetDiceSelection();
+        }
+
+        if (this.game.isGameOver() && this.game.getRemainingHalves() == 0) {
+            this.userInterface.getRollButton().setEnabled(false);
         }
     }
 }
