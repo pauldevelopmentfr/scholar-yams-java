@@ -384,6 +384,8 @@ public class UserInterface {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        this.updatePanel();
     }
 
     /**
@@ -426,6 +428,14 @@ public class UserInterface {
         label.setText(Integer.toString(value));
         label.setForeground(Color.BLACK);
         this.updatePanel();
+    }
+
+    /**
+     * Update panel
+     */
+    public void updatePanel() {
+        this.panel.revalidate();
+        this.panel.repaint();
     }
 
     /**
@@ -703,7 +713,7 @@ public class UserInterface {
                 this.cheatModeStatus = true;
             }
 
-            int amountOfHalves = numberRounds.getText().trim().isEmpty() ? 0 : Integer.parseInt(numberRounds.getText());
+            int amountOfHalves = this.treatAmountOfHalves(numberRounds);
 
             if (this.checkGameSettingsValidity(amountOfHalves)) {
                 this.panel.removeAll();
@@ -748,14 +758,22 @@ public class UserInterface {
 
         for (int i = 0; i < TOP_SIZE; i++) {
             JLabel label = this.createLabelOnGrid("0 ?", player.getId(), i + 1);
-            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            if (!player.isComputer()) {
+                label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+
             labelList.add(label);
             this.grid.add(label);
         }
 
         for (int i = 0; i < BOTTOM_SIZE; i++) {
             JLabel label = this.createLabelOnGrid("0 ?", player.getId(), TOP_SIZE + 3 + i);
-            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            if (!player.isComputer()) {
+                label.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+
             labelList.add(label);
             this.grid.add(label);
         }
@@ -973,10 +991,21 @@ public class UserInterface {
     }
 
     /**
-     * Update panel
+     * Treat the amount of halves
+     *
+     * @param numberRounds
+     *
+     * @return the amount of halves
      */
-    private void updatePanel() {
-        this.panel.revalidate();
-        this.panel.repaint();
+    private int treatAmountOfHalves(JTextField numberRounds) {
+        int amountOfHalves = 0;
+
+        try {
+            amountOfHalves = numberRounds.getText().trim().isEmpty() ? 0 : Integer.parseInt(numberRounds.getText());
+        } catch (NumberFormatException exception) {
+            JOptionPane.showMessageDialog(null, "You have to type a correct number of rounds to play");
+        }
+
+        return amountOfHalves;
     }
 }

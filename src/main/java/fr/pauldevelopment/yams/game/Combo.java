@@ -11,6 +11,16 @@ import fr.pauldevelopment.yams.app.Engine;
 
 public class Combo {
 
+    public static final int CHANCE = 14;
+    public static final int DOUBLE_PAIR = 7;
+    public static final int FOUR_OF_A_KIND = 9;
+    public static final int FULL_HOUSE = 10;
+    public static final int LARGE_STRAIGHT = 12;
+    public static final int PAIR = 6;
+    public static final int SMALL_STRAIGHT = 11;
+    public static final int THREE_OF_A_KIND = 8;
+    public static final int YAMS = 13;
+
     /**
      * Private constructor to hide the implicit public one
      */

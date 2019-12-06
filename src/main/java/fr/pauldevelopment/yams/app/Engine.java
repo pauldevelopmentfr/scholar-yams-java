@@ -30,7 +30,7 @@ public class Engine {
     public static final int BONUS_ELIGIBILITY = 63;
     public static final int BONUS_VALUE = 35;
     public static final int NUMBER_OF_DICE = 5;
-    private static final int BOT_REACTION_TIME = 10;
+    private static final int BOT_REACTION_TIME = 500;
     private static Engine instance;
     private static final int ROLL_LIMIT = 3;
     private Map<Dice, JButton> diceList = new HashMap<>();
@@ -75,7 +75,7 @@ public class Engine {
                     int comboSquare = Engine.this.userInterface.getComboSquareByLatitude(label.getY());
                     int value = Integer.parseInt(label.getText().substring(0, label.getText().length() - 2).trim());
 
-                    Engine.this.updateGame(player, label, comboSquare, value);
+                    Engine.this.updateGame(player, comboSquare, value);
                 }
 
                 @Override
@@ -154,11 +154,11 @@ public class Engine {
     }
 
     /**
-     * Make the artifical intelligence play
+     * Make the artificial intelligence play
      *
      * @param player
      */
-    private void artificalIntelligencePlay(Player player) {
+    private void artificialIntelligencePlay(Player player) {
         try {
             TimeUnit.MILLISECONDS.sleep(BOT_REACTION_TIME);
         } catch (InterruptedException e) {
@@ -169,42 +169,32 @@ public class Engine {
         this.rollDice();
 
         List<Dice> gameDiceList = this.game.getDiceList();
-        // diceList = new ArrayList<>(Arrays.asList(new Dice(6), new Dice(6), new Dice(6), new Dice(5), new Dice(5)));
-
         List<Integer> combinationList = Combo.getCombinationList(gameDiceList);
-        combinationList.remove(combinationList.size() - 1);
-
-        int maxOccurrencesDiceValue = ArtificialIntelligence.determinateDiceWithMaxOccurrences(this.game, player, gameDiceList);
+        int maxOccurrencesDiceValue = ArtificialIntelligence.determinateDiceWithMaxOccurrences(this.game, player);
         int numberOfOccurrences = Combo.countOccurrences(gameDiceList, maxOccurrencesDiceValue);
+        int combo = 0;
 
-        if (numberOfOccurrences < 2) {
-            // TODO Check if straight is available, if yes, check if dice list is straight or check if 4 dice are following each other
-        } else if (numberOfOccurrences == 2) {
-            // TODO Check if straight is available, if yes, check if 4 dice are following each other
-            // TODO Check for double pair, change the remaining dice if there is
-        } else {
-            // TODO If Check isSquareFree(trips, square, yams) and numberOfOccurrences > 2
+        if (numberOfOccurrences == 5 && ArtificialIntelligence.isSquareFree(this.game, player, Combo.YAMS)) {
+            this.updateGame(player, Combo.YAMS, combinationList.get(Combo.YAMS));
+            return;
+        } else if (!combinationList.get(Combo.LARGE_STRAIGHT).equals(0) && ArtificialIntelligence.isSquareFree(this.game, player, Combo.LARGE_STRAIGHT)) {
+            this.updateGame(player, Combo.LARGE_STRAIGHT, combinationList.get(Combo.LARGE_STRAIGHT));
+            return;
+        } else if (!combinationList.get(Combo.SMALL_STRAIGHT).equals(0) && ArtificialIntelligence.isSquareFree(this.game, player, Combo.SMALL_STRAIGHT)) {
+            this.updateGame(player, Combo.SMALL_STRAIGHT, combinationList.get(Combo.SMALL_STRAIGHT));
+            return;
         }
 
-        ArtificialIntelligence.changeDifferentDice(gameDiceList, maxOccurrencesDiceValue);
+        ArtificialIntelligence.thinkAboutStraights(this.game, player);
 
         if (this.game.getRollCount() == 3) {
-            JLabel label;
+            combo = ArtificialIntelligence.applyDefaultStrategy(this.game, player);
+            this.updateGame(player, combo, combinationList.get(combo));
+            return;
+        }
 
-            if (ArtificialIntelligence.isSquareFree(this.game, player, maxOccurrencesDiceValue - 1) && (numberOfOccurrences >= 3 || BONUS_ELIGIBILITY - this.game.getTopScore(player) > 9 && maxOccurrencesDiceValue <= 2)) {
-                label = this.userInterface.getGridList().get(player).get(maxOccurrencesDiceValue - 1);
-                this.updateGame(player, label, maxOccurrencesDiceValue - 1, maxOccurrencesDiceValue * numberOfOccurrences);
-            } else {
-                // TODO !isSquareFree(maxOccurrencesDiceValue), check yams, square, trips, pair
-                int toSacrifice = ArtificialIntelligence.determinateCategoryToSacrifice(this.game, player);
-                label = this.userInterface.getGridList().get(player).get(toSacrifice);
-                this.updateGame(player, this.userInterface.getGridList().get(player).get(toSacrifice), toSacrifice, 0);
-            }
-
-            if (label.getMouseListeners().length > 0) {
-                label.removeMouseListener(label.getMouseListeners()[0]);
-                label.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-            }
+        if (!player.isGridFinished()) {
+            this.artificialIntelligencePlay(player);
         }
     }
 
@@ -263,15 +253,17 @@ public class Engine {
      */
     private void init(List<Player> playerList) {
         for (Player player : playerList) {
+            if (player.isComputer()) {
+                continue;
+            }
+
             this.addGridListener(player);
         }
 
         this.userInterface.changeCurrentPlayer(this.game.getCurrentPlayer());
 
         if (this.game.getCurrentPlayer().isComputer()) {
-            this.artificalIntelligencePlay(this.game.getCurrentPlayer());
-            this.artificalIntelligencePlay(this.game.getCurrentPlayer());
-            this.artificalIntelligencePlay(this.game.getCurrentPlayer());
+            this.artificialIntelligencePlay(this.game.getCurrentPlayer());
         }
     }
 
@@ -366,11 +358,17 @@ public class Engine {
      * Update game
      *
      * @param player
-     * @param label
      * @param comboSquare
      * @param value
      */
-    private void updateGame(Player player, JLabel label, int comboSquare, int value) {
+    private void updateGame(Player player, int comboSquare, int value) {
+        JLabel label = this.userInterface.getGridList().get(player).get(comboSquare);
+
+        if (label.getMouseListeners().length > 0) {
+            label.removeMouseListener(label.getMouseListeners()[0]);
+            label.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+
         this.game.updateGridValueAndScore(player, comboSquare, value);
         this.userInterface.updateGridValue(label, value);
         this.userInterface.updateScores(player, comboSquare, value);
@@ -384,14 +382,10 @@ public class Engine {
 
             if (this.game.getRemainingHalves() > 0) {
                 this.resetEngine();
-            } else {
-                this.userInterface.getRollButton().setEnabled(false);
             }
         } else {
             if (this.game.getCurrentPlayer().isComputer()) {
-                this.artificalIntelligencePlay(this.game.getCurrentPlayer());
-                this.artificalIntelligencePlay(this.game.getCurrentPlayer());
-                this.artificalIntelligencePlay(this.game.getCurrentPlayer());
+                this.artificialIntelligencePlay(this.game.getCurrentPlayer());
             }
         }
 
@@ -399,6 +393,10 @@ public class Engine {
             this.getCurrentPlayerGrid();
         } else {
             this.userInterface.resetDiceSelection();
+        }
+
+        if (this.game.isGameOver() && this.game.getRemainingHalves() == 0) {
+            this.userInterface.getRollButton().setEnabled(false);
         }
     }
 }

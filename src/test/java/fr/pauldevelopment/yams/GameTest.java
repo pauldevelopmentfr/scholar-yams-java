@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import fr.pauldevelopment.yams.app.Engine;
+import fr.pauldevelopment.yams.game.Combo;
 import fr.pauldevelopment.yams.game.Dice;
 import fr.pauldevelopment.yams.game.Game;
 import fr.pauldevelopment.yams.game.Player;
@@ -496,8 +497,8 @@ public class GameTest {
 
         this.game.addPlayer(paul);
         this.game.init();
-        this.game.updateGridValueAndScore(paul, 6, 6);
+        this.game.updateGridValueAndScore(paul, Combo.PAIR, 6);
 
-        assertEquals(6, this.game.getGridList(paul).get(6));
+        assertEquals(6, this.game.getGridList(paul).get(Combo.PAIR));
     }
 }
