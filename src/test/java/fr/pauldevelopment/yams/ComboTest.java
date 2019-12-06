@@ -31,7 +31,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(6));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(14, combinationList.get(14));
+        assertEquals(14, combinationList.get(Combo.CHANCE));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(1));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(21, combinationList.get(14));
+        assertEquals(21, combinationList.get(Combo.CHANCE));
     }
 
     @Test
@@ -62,7 +62,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(1));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(4, combinationList.get(7));
+        assertEquals(4, combinationList.get(Combo.DOUBLE_PAIR));
     }
 
     @Test
@@ -74,7 +74,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(2));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(6, combinationList.get(7));
+        assertEquals(6, combinationList.get(Combo.DOUBLE_PAIR));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(3));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(8, combinationList.get(7));
+        assertEquals(8, combinationList.get(Combo.DOUBLE_PAIR));
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(4));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(7));
+        assertEquals(0, combinationList.get(Combo.DOUBLE_PAIR));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(5));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(20, combinationList.get(7));
+        assertEquals(20, combinationList.get(Combo.DOUBLE_PAIR));
     }
 
     @Test
@@ -122,7 +122,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(2));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(8, combinationList.get(9));
+        assertEquals(8, combinationList.get(Combo.FOUR_OF_A_KIND));
     }
 
     @Test
@@ -134,7 +134,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(5));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(8, combinationList.get(9));
+        assertEquals(8, combinationList.get(Combo.FOUR_OF_A_KIND));
     }
 
     @Test
@@ -146,7 +146,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(5));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(9));
+        assertEquals(0, combinationList.get(Combo.FOUR_OF_A_KIND));
     }
 
     @Test
@@ -158,7 +158,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(2));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(25, combinationList.get(10));
+        assertEquals(25, combinationList.get(Combo.FULL_HOUSE));
     }
 
     @Test
@@ -170,7 +170,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(4));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(10));
+        assertEquals(0, combinationList.get(Combo.FULL_HOUSE));
     }
 
     @Test
@@ -182,7 +182,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(6));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(25, combinationList.get(10));
+        assertEquals(25, combinationList.get(Combo.FULL_HOUSE));
     }
 
     @Test
@@ -194,7 +194,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(2));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(10));
+        assertEquals(0, combinationList.get(Combo.FULL_HOUSE));
     }
 
     @Test
@@ -206,7 +206,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(4));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(10));
+        assertEquals(0, combinationList.get(Combo.FULL_HOUSE));
     }
 
     @Test
@@ -218,7 +218,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(1));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(25, combinationList.get(10));
+        assertEquals(25, combinationList.get(Combo.FULL_HOUSE));
     }
 
     @Test
@@ -230,7 +230,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(4));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(10));
+        assertEquals(0, combinationList.get(Combo.FULL_HOUSE));
     }
 
     @Test
@@ -242,7 +242,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(6));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(12, combinationList.get(6));
+        assertEquals(12, combinationList.get(Combo.PAIR));
     }
 
     @Test
@@ -254,7 +254,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(1));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(6, combinationList.get(6));
+        assertEquals(6, combinationList.get(Combo.PAIR));
     }
 
     @Test
@@ -266,7 +266,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(4));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(8, combinationList.get(6));
+        assertEquals(8, combinationList.get(Combo.PAIR));
     }
 
     @Test
@@ -278,7 +278,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(6));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(6));
+        assertEquals(0, combinationList.get(Combo.PAIR));
     }
 
     @Test
@@ -290,7 +290,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(2));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(40, combinationList.get(12));
+        assertEquals(40, combinationList.get(Combo.LARGE_STRAIGHT));
     }
 
     @Test
@@ -302,7 +302,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(6));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(8, combinationList.get(6));
+        assertEquals(8, combinationList.get(Combo.PAIR));
     }
 
     @Test
@@ -314,7 +314,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(1));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(2, combinationList.get(6));
+        assertEquals(2, combinationList.get(Combo.PAIR));
     }
 
     @Test
@@ -326,7 +326,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(2));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(30, combinationList.get(11));
+        assertEquals(30, combinationList.get(Combo.SMALL_STRAIGHT));
     }
 
     @Test
@@ -338,7 +338,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(1));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(9, combinationList.get(8));
+        assertEquals(9, combinationList.get(Combo.THREE_OF_A_KIND));
     }
 
     @Test
@@ -350,7 +350,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(5));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(9, combinationList.get(8));
+        assertEquals(9, combinationList.get(Combo.THREE_OF_A_KIND));
     }
 
     @Test
@@ -362,7 +362,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(6));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(8));
+        assertEquals(0, combinationList.get(Combo.THREE_OF_A_KIND));
     }
 
     @Test
@@ -374,7 +374,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(6));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(15, combinationList.get(8));
+        assertEquals(15, combinationList.get(Combo.THREE_OF_A_KIND));
     }
 
     @Test
@@ -386,7 +386,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(6));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(18, combinationList.get(8));
+        assertEquals(18, combinationList.get(Combo.THREE_OF_A_KIND));
     }
 
     @Test
@@ -434,7 +434,7 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(5));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(50, combinationList.get(13));
+        assertEquals(50, combinationList.get(Combo.YAMS));
     }
 
     @Test
@@ -446,6 +446,6 @@ public class ComboTest {
         this.game.getDiceList().add(new Dice(5));
 
         List<Integer> combinationList = this.game.getCombinationList();
-        assertEquals(0, combinationList.get(13));
+        assertEquals(0, combinationList.get(Combo.YAMS));
     }
 }
